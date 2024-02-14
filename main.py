@@ -1584,7 +1584,7 @@ def make_ranking(dict, driver):
 
     print(str(dict2))
     threading.Thread(target=browser, args=(str(dict2), driver,)).start()
-    threading.Thread(target=make_ranking2, args=(dict2,)).start()
+    #threading.Thread(target=make_ranking2, args=(dict2,)).start()
 
     
 
