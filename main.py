@@ -511,6 +511,7 @@ xhr.send(JSON.stringify(data));
 
 def reply(req, driver):
     print("reply start", datetime.datetime.now())
+    return
     driver.execute_script("""
 var url = arguments[0];
 var data = JSON.stringify(arguments[1]);
