@@ -511,7 +511,6 @@ xhr.send(JSON.stringify(data));
 
 def reply(req, driver):
     print("reply start", datetime.datetime.now())
-    return
     driver.execute_script("""
 var url = arguments[0];
 var data = JSON.stringify(arguments[1]);
@@ -1584,13 +1583,11 @@ def make_ranking(dict, driver):
 
     print(str(dict2))
     threading.Thread(target=browser, args=(str(dict2), driver,)).start()
-    #threading.Thread(target=make_ranking2, args=(dict2,)).start()
+    threading.Thread(target=make_ranking2, args=(dict2,)).start()
 
     
 
 def get_334(driver):
-    make_ranking([],driver)
-    return
     time1 = datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 33, 59)
     time2 = datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 1)
     get_time = datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 2)
@@ -2041,8 +2038,37 @@ def start():
                 break
         else:
             break
-    
-    get_334(driver)
 
+            
+    times = [
+        [datetime.datetime(start_now.year, start_now.month, start_now.day, 0, 33, 0), datetime.datetime(start_now.year, start_now.month, start_now.day, 4, 33, 0)], #0:03
+        [datetime.datetime(start_now.year, start_now.month, start_now.day, 4, 33, 0), datetime.datetime(start_now.year, start_now.month, start_now.day, 8, 33, 0)], #4:03
+        [datetime.datetime(start_now.year, start_now.month, start_now.day, 8, 33, 0), datetime.datetime(start_now.year, start_now.month, start_now.day, 12, 33, 0)], #8:03
+        [datetime.datetime(start_now.year, start_now.month, start_now.day, 12, 33, 0), datetime.datetime(start_now.year, start_now.month, start_now.day, 16, 33, 0)], #12:03
+        [datetime.datetime(start_now.year, start_now.month, start_now.day, 16, 33, 0), datetime.datetime(start_now.year, start_now.month, start_now.day, 20, 33, 0)], #16:03
+        [datetime.datetime(start_now.year, start_now.month, start_now.day, 20, 33, 0), datetime.datetime(start_now.year, start_now.month, start_now.day, 0, 33, 0) + datetime.timedelta(days=1)], #20:03
+        [datetime.datetime(start_now.year, start_now.month, start_now.day, 0, 33, 0) + datetime.timedelta(days=1), datetime.datetime(start_now.year, start_now.month, start_now.day, 0, 33, 0) + datetime.timedelta(days=1)]
+    ]
+    for i in range(len(times)):
+        if start_now < times[i][0]:
+            start_time = times[i][0]
+            end_time = times[i][1]
+            
+            get_allresult()
+            if len(sys.argv) != 1:
+                start_time = datetime.datetime.now().replace(microsecond = 0) + datetime.timedelta(seconds=240)
+                end_time = times[i][0]
+            login_twitter("rank334", os.environ['PASS'], os.environ['TEL'], driver)
+            login_twitter2("rank334_2", os.environ['PASS'], os.environ['TEL'], driver)
+            threading.Thread(target=interval, args=(start_time, start_time + datetime.timedelta(seconds=5), end_time, 0, driver,)).start()
+            threading.Thread(target=interval2, args=(start_time, end_time, driver,)).start()
+            
+            if (len(sys.argv) == 1 and i == 0) or (len(sys.argv) != 1 and i == 1 and datetime.datetime.now() < datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 0)):
+                threading.Thread(target=interval3, args=(datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 0), 0, driver,)).start()
+                get_preresult()
+                notice(driver)
+                get_334(driver)
+                
+            break
          
 start()
