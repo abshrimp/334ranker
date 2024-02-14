@@ -24,7 +24,7 @@ jobs:
         if: ${{ steps.set.outcome == 'failure' }}
         run: |
           echo "Error handling"
-          curl -X POST https://api.github.com/repos/nao-riku/334Ranker/dispatches \
+          curl -X POST https://api.github.com/repos/abshrimp/334Ranker/dispatches \
                -H 'authorization: Bearer '${{ secrets.KEY }} \
                --data '{"event_type": "Error handling"}'
           exit 1
@@ -48,7 +48,7 @@ jobs:
         if: ${{ steps.install.outcome == 'failure' }}
         run: |
           echo "Error handling"
-          curl -X POST https://api.github.com/repos/nao-riku/334Ranker/dispatches \
+          curl -X POST https://api.github.com/repos/abshrimp/334Ranker/dispatches \
                -H 'authorization: Bearer '${{ secrets.KEY }} \
                --data '{"event_type": "Error handling"}'
           exit 1
@@ -72,7 +72,7 @@ jobs:
         if: ${{ steps.python.outcome == 'failure' }}
         run: |
           echo "Error handling"
-          curl -X POST https://api.github.com/repos/nao-riku/334Ranker/dispatches \
+          curl -X POST https://api.github.com/repos/abshrimp/334Ranker/dispatches \
                -H 'authorization: Bearer '${{ secrets.KEY }} \
                --data '{"event_type": "Error handling"}'
           exit 1
