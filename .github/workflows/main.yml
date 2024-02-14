@@ -1,0 +1,79 @@
+name: 334Ranker
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        id: set
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+        continue-on-error: true
+        timeout-minutes: 1
+
+                
+      - name: Error handling
+        if: ${{ steps.set.outcome == 'failure' }}
+        run: |
+          echo "Error handling"
+          curl -X POST https://api.github.com/repos/nao-riku/334Ranker/dispatches \
+               -H 'authorization: Bearer '${{ secrets.KEY }} \
+               --data '{"event_type": "Error handling"}'
+          exit 1
+
+          
+      - name: Install Package
+        id: install
+        continue-on-error: true
+        run: |
+          sudo languagesetup -langspec ja
+          sudo systemsetup -settimezone Asia/Tokyo
+          sudo systemsetup -getusingnetworktime
+          sudo systemsetup -setusingnetworktime on
+          pip install chromedriver-binary-auto
+          pip install selenium-wire
+          pip install selenium
+          pip install requests
+      
+      
+      - name: Error handling
+        if: ${{ steps.install.outcome == 'failure' }}
+        run: |
+          echo "Error handling"
+          curl -X POST https://api.github.com/repos/nao-riku/334Ranker/dispatches \
+               -H 'authorization: Bearer '${{ secrets.KEY }} \
+               --data '{"event_type": "Error handling"}'
+          exit 1
+ 
+
+      - name: Run Python
+        id: python
+        continue-on-error: true
+        env:
+          GAS_URL: ${{ secrets.GAS_URL }}
+          GAS_URL2: ${{ secrets.GAS_URL2 }}
+          HTML_URL: ${{ secrets.HTML_URL }}
+          HTML_URL2: ${{ secrets.HTML_URL2 }}
+          PASS: ${{ secrets.PASS }}
+          TEL: ${{ secrets.TEL }}
+          TZ: "Asia/Tokyo"
+        run: python main.py
+
+      
+      - name: Error handling
+        if: ${{ steps.python.outcome == 'failure' }}
+        run: |
+          echo "Error handling"
+          curl -X POST https://api.github.com/repos/nao-riku/334Ranker/dispatches \
+               -H 'authorization: Bearer '${{ secrets.KEY }} \
+               --data '{"event_type": "Error handling"}'
+          exit 1
