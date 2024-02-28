@@ -1397,7 +1397,6 @@ promise.then((e) => window.data = data2);
                 res = driver2.execute_script("return window.data")
                 if res != "":
                     break
-            print(res)
             driver.execute_script('document.getElementById("input").value = arguments[0]; start();', str(res))
             wait2 = WebDriverWait(driver, 180).until(EC.alert_is_present())
         except Exception as e:
@@ -1431,6 +1430,21 @@ def browser(tweets, driver2):
             traceback.print_exc()
             time.sleep(2)
         else:
+            break
+    
+    for _ in range(5):
+        try:
+            driver4.execute_script('document.getElementById("input").value = arguments[0]; start();', tweets)
+            wait2 = WebDriverWait(driver4, 180).until(EC.alert_is_present())
+        except Exception as e:
+            traceback.print_exc()
+            time.sleep(1)
+        else:
+            Alert(driver4).accept()
+            bin = driver4.execute_script('return window.res')
+            postrank(bin, driver2, "Today's top 30")
+            wait3 = WebDriverWait(driver4, 300).until(EC.alert_is_present())
+            Alert(driver4).accept()
             break
             
     dt = datetime.datetime.now()
@@ -1542,6 +1556,30 @@ def make_ranking(dict, driver):
     winner = ""
     users = []
     dict2 = []
+    for item in dict:
+        if item["text"] == "334" and item["user"]["id_str"] not in users:
+            users.append(item["user"]["id_str"])
+            time2 = TweetIdTime(int(item["id_str"]))
+            res = (time2 - time1).total_seconds()
+            if 0 <= res and res < 1:
+                result = '{:.3f}'.format(res)
+                if winner == "" or result == winner:
+                    winner = result
+                    threading.Thread(target=retweet, args=(item["id_str"], driver,)).start()
+
+                img_src = "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png"
+                if item["user"]["profile_image_url_https"] != "":
+                    img_src = item["user"]["profile_image_url_https"]
+                
+                dict2.append([
+                    img_src,
+                    item["user"]["name"],
+                    str(result),
+                    item["source"],
+                    item["id_str"],
+                    "@" + item["user"]["screen_name"],
+                    item["user"]["id_str"]
+                ])
 
     print(str(dict2))
     threading.Thread(target=browser, args=(str(dict2), driver,)).start()
@@ -1550,18 +1588,406 @@ def make_ranking(dict, driver):
     
 
 def get_334(driver):
+    time1 = datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 33, 59)
+    time2 = datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 1)
+    get_time = datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 2)
+    while True:
+        if get_time < datetime.datetime.now():
+            print("get334 start: ")
+            print(datetime.datetime.now())
+            driver.execute_script("""
+window.data = "";
+var url1 = 'https://api.twitter.com/1.1/search/';
+var url2 = '.json?count=100&result_type=recent&q=334 since:""" + time1.strftime('%Y-%m-%d_%H:%M:%S_JST') + """ until:""" + time2.strftime('%Y-%m-%d_%H:%M:%S_JST') + """ -filter:retweets -filter:quote -from:rank334 -from:rank334_2';
+var out = [];
+var out2 = [];
+var out3 = [];
+var out4 = [];
+var out7 = [];
+var cookie = document.cookie.replaceAll(" ", "").split(";");
+var token = "";
+cookie.forEach(function (value) {
+    let content = value.split('=');
+    if (content[0] == "ct0") token = content[1];
+})
+let time1 = new Date()
+time1.setHours(3);
+time1.setMinutes(34);
+time1.setSeconds(0);
+time1.setMilliseconds(0);
 
+function get_queryid(name, defaultId) {
+    try {
+        let queryids = webpackChunk_twitter_responsive_web;
+        for (let i = 0; i < queryids.length; i++) {
+            for (let key in queryids[i][1]) {
+                try {
+                    if (queryids[i][1][key].length === 1) {
+                        let tmp = {};
+                        queryids[i][1][key](tmp);
+                        if (tmp.exports.operationName === name) return tmp.exports.queryId;
+                    }
+                } catch { }
+            }
+        }
+        return defaultId;
+    } catch {
+        return defaultId;
+    }
+}
+
+var data = arguments[0];
+data.variables["cursor"] = "";
+data.variables.seenTweetIds = [];
+let queryid = get_queryid("HomeLatestTimeline", "02vsYHq98uLTwnNu2VF0Lg");
+data.queryId = queryid;
+var data2 = arguments[1];
+data2.variables["cursor"] = "";
+data2.variables["rawQuery"] = "334 -filter:retweets -filter:quote -from:rank334 -from:rank334_2 since:""" + time1.strftime('%Y-%m-%d_%H:%M:%S_JST') + """ until:""" + time2.strftime('%Y-%m-%d_%H:%M:%S_JST') + """"
+let queryid2 = get_queryid("SearchTimeline", "KUnA_SzQ4DMxcwWuYZh9qg");
+var count = 0;
+//get_tweets();
+//get_tweets2();
+get_tweets3(data);
+get_tweets4(data2);
+setTimeout(function() { get_tweets5(data2) }, 2000);
+
+
+function setheader(xhr) {
+    xhr.setRequestHeader('Authorization', 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA');
+    xhr.setRequestHeader('x-csrf-token', token);
+    xhr.setRequestHeader('x-twitter-active-user', 'yes');
+    xhr.setRequestHeader('x-twitter-auth-type', 'OAuth2Session');
+    xhr.setRequestHeader('x-twitter-client-language', 'ja');
+    xhr.withCredentials = true;
+}
+
+function get_tweets(max_id) {
+    let xhr = new XMLHttpRequest();
+    let url = max_id !== undefined ? url1 + "universal" + url2 + " max_id:" + max_id : url1 + "universal" + url2;
+    xhr.open('GET', url);
+    setheader(xhr);
+    xhr.send();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            console.error("get1");
+            if (xhr.status === 200) {
+                try {
+                    res = JSON.parse(xhr.responseText).modules;
+                    if (res.length <= 0 || (max_id !== undefined && res.length <= 1)) final([]);
+                    else {
+                        if (max_id !== undefined) res.shift();
+                        for (let i = 0; i < res.length; i++) {
+                            let tweet = res[i].status.data;
+                            tweet["index"] = parseInt(BigInt(tweet.id_str).toString(2).slice(0, -22), 2) + 1288834974657;
+                            out.push(tweet);
+                        }
+                        get_tweets(out[out.length - 1].id_str);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    final([]);
+                }
+            } else final([]);
+        }
+    }
+}
+
+function get_tweets2(max_id) {
+    let xhr = new XMLHttpRequest();
+    let url = max_id !== undefined ? url1 + "tweets" + url2 + " max_id:" + max_id : url1 + "tweets" + url2;
+    xhr.open('GET', url);
+    setheader(xhr);
+    xhr.send();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            console.error("get2");
+            if (xhr.status === 200) {
+                try {
+                    res = JSON.parse(xhr.responseText);
+                    if ('statuses' in res) {
+                        res = res.statuses;
+                        if (res.length <= 0 || (max_id !== undefined && res.length <= 1)) final(out2);
+                        else {
+                            if (max_id !== undefined) res.shift();
+                            for (let i = 0; i < res.length; i++) {
+                                let tweet = res[i];
+                                tweet["index"] = parseInt(BigInt(tweet.id_str).toString(2).slice(0, -22), 2) + 1288834974657;
+                                out2.push(res[i]);
+                            }
+                            get_tweets2(out2[out2.length - 1].id_str);
+                        }
+                    } else final(out2);
+                } catch (e) {
+                    console.error(e);
+                    final(out2);
+                }
+            } else final(out2);
+        }
+    }
+}
+
+function get_tweets3(d) {
+    try {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://api.twitter.com/graphql/' + queryid + '/HomeLatestTimeline');
+        setheader(xhr);
+        xhr.setRequestHeader('content-type', 'application/json');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                console.error("get3");
+                if (xhr.status === 200) {
+                    try {
+                        var flag = true;
+                        let entries = JSON.parse(xhr.responseText).data.home.home_timeline_urt.instructions[0].entries;
+                        for (let i = 0; i < entries.length; i++) {
+                            if (!entries[i].entryId.includes("promoted") && !entries[i].entryId.includes("cursor")) {
+                                try {
+                                    if (entries[i].entryId.includes("home")) var res = entries[i].content.items[0].item.itemContent.tweet_results.result;
+                                    else var res = entries[i].content.itemContent.tweet_results.result;
+                                    if ("tweet" in res) res = res.tweet;
+                                    let legacy = res.legacy;
+                                    if (new Date(legacy.created_at) < time1) {
+                                        if (entries[i].entryId.includes("home")) continue;
+                                        else {
+                                            flag = false;
+                                            final(out3);
+                                            break;
+                                        }
+                                    }
+                                    legacy["text"] = legacy.full_text;
+                                    if (legacy.text != "334") continue;
+                                    legacy["source"] = res.source;
+                                    legacy["index"] = parseInt(BigInt(legacy.id_str).toString(2).slice(0, -22), 2) + 1288834974657;
+                                    legacy["user"] = res.core.user_results.result.legacy;
+                                    legacy.user["id_str"] = legacy.user_id_str;
+                                    out3.push(legacy);
+                                    continue;
+                                } catch (e) {
+                                    console.error(e);
+                                }
+                            }
+                            if (entries[i].entryId.includes("bottom")) {
+                                let data3 = Object.assign({}, data);
+                                data3.variables.cursor = entries[i].content.value;
+                                flag = false;
+                                get_tweets3(data3);
+                                break;
+                            }
+                        }
+                        if (flag) final(out3);
+                    } catch (e) {
+                        console.error(e);
+                        final(out3);
+                    }
+                } else final(out3);
+            }
+        }
+        xhr.send(JSON.stringify(d));
+    } catch (e) {
+        console.error(e);
+        final(out3);
+    }
+}
+
+function get_tweets4(d) {
+    try {
+        let param = "?" + Object.entries(d).map((e) => {
+            return `${e[0].replaceAll("%22", "")}=${encodeURIComponent(JSON.stringify(e[1]))}`
+        }).join("&")
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://api.twitter.com/graphql/' + queryid2 + '/SearchTimeline' + param);
+        setheader(xhr);
+        xhr.setRequestHeader('content-type', 'application/json');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                console.error("get4");
+                if (xhr.status === 200) {
+                    try {
+                        var flag = true;
+                        let instructions = JSON.parse(xhr.responseText).data.search_by_raw_query.search_timeline.timeline.instructions;
+                        var flag2 = true;
+                        loop: for (let j = 0; j < instructions.length; j++) {
+                            if ("entries" in instructions[j]) var entries = instructions[j].entries;
+                            else if ("entry" in instructions[j]) var entries = [instructions[j].entry];
+                            else continue;
+                            for (let i = 0; i < entries.length; i++) {
+                                if (!entries[i].entryId.includes("promoted") && !entries[i].entryId.includes("cursor")) {
+                                    try {
+                                        flag2 = false;
+                                        var res = entries[i].content.itemContent.tweet_results.result;
+                                        if ("tweet" in res) res = res.tweet;
+                                        let legacy = res.legacy;
+                                        if (new Date(legacy.created_at) < time1) {
+                                            if (entries[i].entryId.includes("home")) continue;
+                                            else {
+                                                flag = false;
+                                                final(out4);
+                                                break loop;
+                                            }
+                                        }
+                                        legacy["text"] = legacy.full_text;
+                                        if (legacy.text != "334") continue;
+                                        legacy["source"] = res.source;
+                                        legacy["index"] = parseInt(BigInt(legacy.id_str).toString(2).slice(0, -22), 2) + 1288834974657;
+                                        legacy["user"] = res.core.user_results.result.legacy;
+                                        legacy.user["id_str"] = legacy.user_id_str;
+                                        out4.push(legacy);
+                                        continue;
+                                    } catch (e) {
+                                        console.error(e);
+                                    }
+                                }
+                                if (entries[i].entryId.includes("bottom")) {
+                                    let data3 = JSON.parse(JSON.stringify(data2));
+                                    data3.variables.cursor = entries[i].content.value;
+                                    flag = false;
+                                    if (flag2) final(out4);
+                                    else get_tweets4(data3);
+                                    break loop;
+                                }
+                            }
+                        }
+                        if (flag) final(out4);
+                    } catch (e) {
+                        console.error(e);
+                        final(out4);
+                    }
+                } else final(out4);
+            }
+        }
+        xhr.send();
+    } catch (e) {
+        console.error(e);
+        final(out4);
+    }
+}
+
+function get_tweets5(d) {
+    try {
+        let param = "?" + Object.entries(d).map((e) => {
+            return `${e[0].replaceAll("%22", "")}=${encodeURIComponent(JSON.stringify(e[1]))}`
+        }).join("&")
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://api.twitter.com/graphql/' + queryid2 + '/SearchTimeline' + param);
+        setheader(xhr);
+        xhr.setRequestHeader('content-type', 'application/json');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                console.error("get5");
+                if (xhr.status === 200) {
+                    try {
+                        var flag = true;
+                        let instructions = JSON.parse(xhr.responseText).data.search_by_raw_query.search_timeline.timeline.instructions;
+                        var flag2 = true;
+                        loop: for (let j = 0; j < instructions.length; j++) {
+                            if ("entries" in instructions[j]) var entries = instructions[j].entries;
+                            else if ("entry" in instructions[j]) var entries = [instructions[j].entry];
+                            else continue;
+                            for (let i = 0; i < entries.length; i++) {
+                                if (!entries[i].entryId.includes("promoted") && !entries[i].entryId.includes("cursor")) {
+                                    try {
+                                        flag2 = false;
+                                        var res = entries[i].content.itemContent.tweet_results.result;
+                                        if ("tweet" in res) res = res.tweet;
+                                        let legacy = res.legacy;
+                                        if (new Date(legacy.created_at) < time1) {
+                                            if (entries[i].entryId.includes("home")) continue;
+                                            else {
+                                                flag = false;
+                                                final(out7);
+                                                break loop;
+                                            }
+                                        }
+                                        legacy["text"] = legacy.full_text;
+                                        if (legacy.text != "334") continue;
+                                        legacy["source"] = res.source;
+                                        legacy["index"] = parseInt(BigInt(legacy.id_str).toString(2).slice(0, -22), 2) + 1288834974657;
+                                        legacy["user"] = res.core.user_results.result.legacy;
+                                        legacy.user["id_str"] = legacy.user_id_str;
+                                        out7.push(legacy);
+                                        continue;
+                                    } catch (e) {
+                                        console.error(e);
+                                    }
+                                }
+                                if (entries[i].entryId.includes("bottom")) {
+                                    let data3 = JSON.parse(JSON.stringify(data2));
+                                    data3.variables.cursor = entries[i].content.value;
+                                    flag = false;
+                                    if (flag2) final(out7);
+                                    else get_tweets5(data3);
+                                    break loop;
+                                }
+                            }
+                        }
+                        if (flag) final(out7);
+                    } catch (e) {
+                        console.error(e);
+                        final(out7);
+                    }
+                } else final(out7);
+            }
+        }
+        xhr.send();
+    } catch (e) {
+        console.error(e);
+        final(out7);
+    }
+}
+
+function final(out6) {
+    out = out.concat(out6);
+    count++;
+    if (count < 3) return;
+    let out5 = []
+    let ids = [];
+    out.sort((a, b) => a.index - b.index);
+    for (let i = 0; i < out.length; i++) {
+        if (!ids.includes(out[i].id_str)) {
+            out5.push(out[i]);
+            ids.push(out[i].id_str);
+        }
+    }
+    window.data = out5;
+}
+            """, timeline_body, search_body)
             while True:
                 time.sleep(0.01)
-                if True:
+                res = driver.execute_script("return window.data")
+                if res != "":
+                    print("get334 from Ranker", datetime.datetime.now())
+                    add = []
+                    for _ in range(5):
+                        try:
+                            r = requests.get(os.environ['GAS_URL2'], timeout=10)
+                            r_json = r.json()
+                            time.sleep(0.5)
+                            print("get334 from Ranker2", datetime.datetime.now())
+                            add = r_json["data"]
+                            if add == []:
+                                time.sleep(0.5)
+                            else:
+                                break
+                        except Exception as e:
+                            traceback.print_exc()
+                            break
+
+                    res = res + add
+                    res.sort(key=lambda x: int(x["index"]))
                     ids = []
                     res2 = []
+                    for r in res:
+                        if r["id_str"] not in ids:
+                            res2.append(r)
+                            ids.append(r["id_str"])
 
                     print("get334 conplete: ")
                     print(datetime.datetime.now())
                     make_ranking(res2, driver)
                     break
-        
+            break
+        time.sleep(0.01)
 
 
 
@@ -1623,7 +2049,26 @@ def start():
         [datetime.datetime(start_now.year, start_now.month, start_now.day, 20, 33, 0), datetime.datetime(start_now.year, start_now.month, start_now.day, 0, 33, 0) + datetime.timedelta(days=1)], #20:03
         [datetime.datetime(start_now.year, start_now.month, start_now.day, 0, 33, 0) + datetime.timedelta(days=1), datetime.datetime(start_now.year, start_now.month, start_now.day, 0, 33, 0) + datetime.timedelta(days=1)]
     ]
-    login_twitter("rank334", os.environ['PASS'], os.environ['TEL'], driver)
-    get_334(driver)
+    for i in range(len(times)):
+        if start_now < times[i][0]:
+            start_time = times[i][0]
+            end_time = times[i][1]
+            
+            get_allresult()
+            if len(sys.argv) != 1:
+                start_time = datetime.datetime.now().replace(microsecond = 0) + datetime.timedelta(seconds=240)
+                end_time = times[i][0]
+            login_twitter("rank334", os.environ['PASS'], os.environ['TEL'], driver)
+            login_twitter2("rank334_2", os.environ['PASS'], os.environ['TEL'], driver)
+            threading.Thread(target=interval, args=(start_time, start_time + datetime.timedelta(seconds=5), end_time, 0, driver,)).start()
+            threading.Thread(target=interval2, args=(start_time, end_time, driver,)).start()
+            
+            if (len(sys.argv) == 1 and i == 0) or (len(sys.argv) != 1 and i == 1 and datetime.datetime.now() < datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 0)):
+                threading.Thread(target=interval3, args=(datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 0), 0, driver,)).start()
+                get_preresult()
+                notice(driver)
+                get_334(driver)
+                
+            break
          
 start()
