@@ -1560,8 +1560,7 @@ def get_334(driver):
                     print(datetime.datetime.now())
                     make_ranking(res2, driver)
                     break
-            break
-        time.sleep(0.01)
+        
 
 
 
