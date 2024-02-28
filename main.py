@@ -1397,6 +1397,7 @@ promise.then((e) => window.data = data2);
                 res = driver2.execute_script("return window.data")
                 if res != "":
                     break
+            print(res)
             driver.execute_script('document.getElementById("input").value = arguments[0]; start();', str(res))
             wait2 = WebDriverWait(driver, 180).until(EC.alert_is_present())
         except Exception as e:
