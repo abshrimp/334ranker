@@ -1984,7 +1984,8 @@ function final(out6) {
 
                     print("get334 conplete: ")
                     print(datetime.datetime.now())
-                    make_ranking(res2, driver)
+                    if res2 != []:
+                        make_ranking(res2, driver)
                     break
             break
         time.sleep(0.01)
