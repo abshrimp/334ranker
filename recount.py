@@ -48,14 +48,18 @@ end_time = ""
 def get_allresult():
     global today_result, world_rank, load_res_yet
     load_res_yet = False
-    try:
-        r = requests.get(os.environ['GAS_URL'])
-        r_json = r.json()
-        time.sleep(0.5)
-        today_result = r_json["result"]
-        world_rank = r_json["rank"]
-    except Exception as e:
-        traceback.print_exc()
+    for _ in range(5):
+        try:
+            r = requests.get(os.environ['GAS_URL'])
+            r_json = r.json()
+            time.sleep(0.5)
+            today_result = r_json["result"]
+            world_rank = r_json["rank"]
+        except Exception as e:
+            traceback.print_exc()
+            time.sleep(2)
+        else:
+            break
     if today_result == {} or world_rank == {}:
         load_res_yet = True
     else:
@@ -416,7 +420,8 @@ def login_twitter2(account, password, tel, driver):
                     driver3.get('https://twitter.com/Rank334_2/status/1705386885135343879')
                     element = WebDriverWait(driver3, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[role=textbox]")))
                 except:
-                    sys.exit(1)
+                    #sys.exit(1)
+                    pass
                     break
             time.sleep(1)
 
@@ -506,7 +511,8 @@ xhr.send(JSON.stringify(data));
 
 def reply(req, driver):
     print("reply start", datetime.datetime.now())
-    return
+    #return
+    #              ＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜ランク投稿しないときはここ付ける
     driver.execute_script("""
 var url = arguments[0];
 var data = JSON.stringify(arguments[1]);
@@ -816,7 +822,7 @@ def receive(dict, driver):
                     if user_name == "":
                         user_name = "@" + item["status"]["data"]["user"]["screen_name"]
                     text = item["status"]["data"]["full_text"].lower()
-                    if "フォロー" in text:
+                    if "ふぉろー" in text or "フォロー" in text or "follow" in text or "ふぉろば" in text or "フォロバ" in text:
                         if item["status"]["data"]["id_str"] not in idlist:
                             idlist.append(item["status"]["data"]["id_str"])
                             follow_flag = True
@@ -1054,7 +1060,7 @@ def interval3(until, index, driver):
     if index == 0:
         driver3.execute_script("window.search = {};")
     while True:
-        if True:#until < datetime.datetime.now():
+        if until < datetime.datetime.now():
             if until <= datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 48):
                 threading.Thread(target=interval3, args=(until + datetime.timedelta(seconds = 1), index + 1, driver,)).start()
             since = until - datetime.timedelta(seconds = 2)
@@ -1335,7 +1341,7 @@ function final(id) {
 def browser2(driver, driver2):
     for _ in range(5):
         try:
-            driver.get("https://nao-riku.github.io/334Ranker/index2.html")
+            driver.get(os.environ['HTML_URL2'])
             wait = WebDriverWait(driver, 60).until(EC.alert_is_present())
             Alert(driver).accept()
             data = driver.execute_script('return window.data')
@@ -1418,7 +1424,7 @@ def browser(tweets, driver2):
                 options.add_argument('--disable-dev-shm-usage')
                 driver4 = webdriver.Chrome(options = options)
                 driver4.set_window_size(589, 1)
-                driver4.get("https://nao-riku.github.io/334Ranker/index.html")
+                driver4.get(os.environ['HTML_URL'])
                 wait = WebDriverWait(driver4, 10).until(EC.alert_is_present())
                 Alert(driver4).accept()
             
@@ -1562,7 +1568,8 @@ def make_ranking(dict, driver):
                 result = '{:.3f}'.format(res)
                 if winner == "" or result == winner:
                     winner = result
-                    #threading.Thread(target=retweet, args=(item["id_str"], driver,)).start()
+                    threading.Thread(target=retweet, args=(item["id_str"], driver,)).start()
+                    #           ＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜場合によって付ける
 
                 img_src = "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png"
                 if item["user"]["profile_image_url_https"] != "":
@@ -2023,7 +2030,7 @@ def start():
             driver3 = webdriver.Chrome(options = options)
             driver4 = webdriver.Chrome(options = options)
             driver4.set_window_size(589, 1)
-            driver4.get("https://nao-riku.github.io/334Ranker/index.html")
+            driver4.get(os.environ['HTML_URL'])
             wait = WebDriverWait(driver4, 10).until(EC.alert_is_present())
             Alert(driver4).accept()
             
@@ -2051,18 +2058,18 @@ def start():
             start_time = times[i][0]
             end_time = times[i][1]
             
-            get_allresult()
+            #get_allresult()
             if len(sys.argv) != 1:
                 end_time = datetime.datetime.now().replace(microsecond = 0) + datetime.timedelta(seconds=360)
             login_twitter("rank334", os.environ['PASS'], os.environ['TEL'], driver)
             login_twitter2("rank334_2", os.environ['PASS'], os.environ['TEL'], driver)
             start_time = datetime.datetime.now().replace(microsecond = 0) + datetime.timedelta(seconds=10)
-            threading.Thread(target=interval, args=(start_time, start_time + datetime.timedelta(seconds=5), end_time, 0, driver,)).start()
-            threading.Thread(target=interval2, args=(start_time, end_time, driver,)).start()
+            #threading.Thread(target=interval, args=(start_time, start_time + datetime.timedelta(seconds=5), end_time, 0, driver,)).start()
+            #threading.Thread(target=interval2, args=(start_time, end_time, driver,)).start()
             
             if True:#(len(sys.argv) == 1 and i == 0) or (len(sys.argv) != 1 and i == 1 and datetime.datetime.now() < datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 0)):
-                threading.Thread(target=interval3, args=(datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 0), 0, driver,)).start()
-                get_preresult()
+                #threading.Thread(target=interval3, args=(datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 0), 0, driver,)).start()
+                #get_preresult()
                 notice(driver)
                 get_334(driver)
                 
