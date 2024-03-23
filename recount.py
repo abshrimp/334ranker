@@ -511,7 +511,7 @@ xhr.send(JSON.stringify(data));
 
 def reply(req, driver):
     print("reply start", datetime.datetime.now())
-    return
+    #return
     #              ＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜ランク投稿しないときはここ付ける
     driver.execute_script("""
 var url = arguments[0];
@@ -1586,7 +1586,7 @@ def make_ranking(dict, driver):
                 ])
 
     print(str(dict2))
-    #threading.Thread(target=browser, args=(str(dict2), driver,)).start()
+    threading.Thread(target=browser, args=(str(dict2), driver,)).start()
     threading.Thread(target=make_ranking2, args=(dict2,)).start()
 
     
