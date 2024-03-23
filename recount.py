@@ -511,7 +511,7 @@ xhr.send(JSON.stringify(data));
 
 def reply(req, driver):
     print("reply start", datetime.datetime.now())
-    #return
+    return
     #              ＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜ランク投稿しないときはここ付ける
     driver.execute_script("""
 var url = arguments[0];
@@ -1988,7 +1988,8 @@ function final(out6) {
                             
                     print("get334 conplete: ")
                     print(datetime.datetime.now())
-                    make_ranking(res2, driver)
+                    if res2 != []:
+                        make_ranking(res2, driver)
                     break
             break
         time.sleep(0.01)
