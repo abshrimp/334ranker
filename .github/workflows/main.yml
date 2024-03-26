@@ -69,11 +69,14 @@ jobs:
         run: python main.py
 
       
+      - name: output
+        run: echo ${{ github.event.client_payload.err }}
+        
       - name: Error handling
-        if: ${{ steps.python.outcome == 'failure' }}
+        if: ${{ github.event.client_payload.err != 'aaaa' && steps.python.outcome == 'failure' }}
         run: |
           echo "Error handling"
           curl -X POST https://api.github.com/repos/abshrimp/334Ranker/dispatches \
                -H 'authorization: Bearer '${{ secrets.KEY }} \
-               --data '{"event_type": "Error handling"}'
+               --data '{"event_type": "Error handling", "client_payload":{"err":"${{ github.event.client_payload.err }}a"}}'
           exit 1
