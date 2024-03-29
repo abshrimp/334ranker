@@ -2022,6 +2022,7 @@ def start():
             options.add_argument("--disable-extensions")
             options.add_argument("--disable-gpu")
             options.add_argument('--disable-dev-shm-usage')
+            options.add_argument('--disable-http2')
             driver3 = webdriver.Chrome(options = options)
             driver4 = webdriver.Chrome(options = options)
             driver4.set_window_size(589, 1)
