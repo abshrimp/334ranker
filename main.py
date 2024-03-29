@@ -202,10 +202,10 @@ def login_twitter(account, password, tel, driver):
                 act.send_keys(account[i])
                 act.perform()
             time.sleep(2)
+            driver.get_screenshot_as_file("a.png")
         
         except Exception as e:
             traceback.print_exc()
-            driver.get_screenshot_as_file("a.png")
             time.sleep(2)
         else:
             break
