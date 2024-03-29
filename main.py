@@ -186,7 +186,7 @@ xhr.send(JSON.stringify(data));
 
 def login_twitter(account, password, tel, driver):
     global timeline_body, getuser_body, getuser_url, not_url, not_body, search_body
-    for _ in range(10):
+    for _ in range(1):
         try:
             driver.get('https://twitter.com/i/flow/login')
             driver.maximize_window()
@@ -326,6 +326,7 @@ def login_twitter(account, password, tel, driver):
         
         except Exception as e:
             traceback.print_exc()
+            driver.get_screenshot_as_file("a.png")
             time.sleep(2)
         else:
             break
@@ -2055,20 +2056,20 @@ def start():
             start_time = times[i][0]
             end_time = times[i][1]
             
-            get_allresult()
+            #get_allresult()
             if len(sys.argv) != 1:
                 start_time = datetime.datetime.now().replace(microsecond = 0) + datetime.timedelta(seconds=240)
                 end_time = times[i][0]
             login_twitter("rank334", os.environ['PASS'], os.environ['TEL'], driver)
-            login_twitter2("rank334_2", os.environ['PASS'], os.environ['TEL'], driver)
-            threading.Thread(target=interval, args=(start_time, start_time + datetime.timedelta(seconds=5), end_time, 0, driver,)).start()
-            threading.Thread(target=interval2, args=(start_time, end_time, driver,)).start()
+            #login_twitter2("rank334_2", os.environ['PASS'], os.environ['TEL'], driver)
+            #threading.Thread(target=interval, args=(start_time, start_time + datetime.timedelta(seconds=5), end_time, 0, driver,)).start()
+            #threading.Thread(target=interval2, args=(start_time, end_time, driver,)).start()
             
             if (len(sys.argv) == 1 and i == 0) or (len(sys.argv) != 1 and i == 1 and datetime.datetime.now() < datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 0)):
-                threading.Thread(target=interval3, args=(datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 0), 0, driver,)).start()
-                get_preresult()
-                notice(driver)
-                get_334(driver)
+                #threading.Thread(target=interval3, args=(datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 0), 0, driver,)).start()
+                #get_preresult()
+                #notice(driver)
+                #get_334(driver)
                 
             break
          
