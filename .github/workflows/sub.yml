@@ -62,3 +62,8 @@ jobs:
                -H 'authorization: Bearer '${{ secrets.KEY }} \
                --data '{"event_type": "Error handling"}'
           exit 1
+
+        
+      - uses: actions/upload-artifact@v3
+        with:
+          path: a.png
