@@ -202,127 +202,6 @@ def login_twitter(account, password, tel, driver):
                 act.send_keys(account[i])
                 act.perform()
             time.sleep(2)
-            element_account.send_keys(Keys.ENTER)
-            time.sleep(20)
-
-            element_pass = driver.find_elements(By.TAG_NAME, "input")[1]
-            for i in range(len(password)):
-                time.sleep(1)
-                act.send_keys(password[i])
-                act.perform()
-            time.sleep(2)
-            element_pass.send_keys(Keys.ENTER)
-            time.sleep(20)
-
-            element_tel = driver.find_elements(By.NAME, "text")
-            if len(element_tel) > 0:
-                element_tel[0].send_keys(tel)
-                time.sleep(2) 
-                element_tel[0].send_keys(Keys.ENTER)
-                time.sleep(20)
-
-            driver.get('https://twitter.com/home')
-            time.sleep(20)
-            
-            for _ in range(5):
-                for request in driver.requests:
-                    if request.response:
-                        if "Timeline" in request.url and "graphql" in request.url:
-                            if request.body != b'':
-                                timeline_body2 = json.loads(request.body)
-                                time.sleep(0.5)
-                                if "variables" in timeline_body2:
-                                    timeline_body = timeline_body2
-                                    print("set timeline_body")
-                                    break
-                            else:
-                                timeline_body2 = request.params
-                                time.sleep(0.5)
-                                if "variables" in timeline_body2:
-                                    timeline_body = timeline_body2
-                                    for key in timeline_body:
-                                    	timeline_body[key] = json.loads(timeline_body[key])
-                                    print("set timeline_body")
-                                    break
-                if timeline_body != {}:
-                    break
-                time.sleep(0.5)
-		
-            driver.get('https://twitter.com/intent/user?user_id=1')
-            time.sleep(20)
-            
-            for _ in range(5):
-                for request in driver.requests:
-                    if request.response:
-                        if "UserByRestId" in request.url and "graphql" in request.url:
-                            getuser_url = request.url
-                            if request.body != b'':
-                                getuser_body2 = json.loads(request.body)
-                                time.sleep(0.5)
-                                if "variables" in getuser_body2:
-                                    getuser_body = getuser_body2
-                                    print("set getuser_body")
-                                    break
-                            else:
-                                getuser_body2 = request.params
-                                time.sleep(0.5)
-                                if "variables" in getuser_body2:
-                                    getuser_body = getuser_body2
-                                    for key in getuser_body:
-                                    	getuser_body[key] = json.loads(getuser_body[key])
-                                    print("set getuser_body")
-                                    break
-                if getuser_body != {}:
-                    break
-                time.sleep(0.5)
-
-            driver.get('https://twitter.com/notifications/mentions')
-            time.sleep(20)
-            
-            for _ in range(5):
-                for request in driver.requests:
-                    if request.response:
-                        if "mentions.json" in request.url:
-                            not_url = request.url
-                            if request.body != b'':
-                                not_body = json.loads(request.body)
-                            else:
-                                not_body = request.params
-                            print("set not_body")
-                            break
-                if not_body != {}:
-                    break
-                time.sleep(0.5)
-            
-            driver.get('https://twitter.com/search?q=334&src=typed_query&f=live')
-            time.sleep(20)
-            
-            for _ in range(5):
-                for request in driver.requests:
-                    if request.response:
-                        if "SearchTimeline" in request.url and "graphql" in request.url:
-                            if request.body != b'':
-                                search_body2 = json.loads(request.body)
-                                time.sleep(0.5)
-                                if "variables" in search_body2:
-                                    search_body = search_body2
-                                    print("set search_body")
-                                    break
-                            else:
-                                search_body2 = request.params
-                                time.sleep(0.5)
-                                if "variables" in search_body2:
-                                    search_body = search_body2
-                                    for key in search_body:
-                                    	search_body[key] = json.loads(search_body[key])
-                                    print("set search_body")
-                                    break
-                if search_body != {}:
-                    break
-                time.sleep(0.5)
-
-            
-            tweet(driver, account, password, tel)
         
         except Exception as e:
             traceback.print_exc()
@@ -2023,6 +1902,7 @@ def start():
             options.add_argument("--disable-extensions")
             options.add_argument("--disable-gpu")
             options.add_argument('--disable-dev-shm-usage')
+            options.add_argument('--disable-http2')
             driver3 = webdriver.Chrome(options = options)
             driver4 = webdriver.Chrome(options = options)
             driver4.set_window_size(589, 1)
