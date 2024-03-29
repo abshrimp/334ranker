@@ -186,11 +186,11 @@ xhr.send(JSON.stringify(data));
 
 def login_twitter(account, password, tel, driver):
     global timeline_body, getuser_body, getuser_url, not_url, not_body, search_body
-    for _ in range(5):
+    for _ in range(20):
         try:
             driver.get('https://twitter.com/i/flow/login')
             driver.maximize_window()
-            element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.NAME, "text")))
+            element = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.NAME, "text")))
             time.sleep(1)
             
             act = ActionChains(driver)
@@ -333,11 +333,11 @@ def login_twitter(account, password, tel, driver):
 
 
 def login_twitter2(account, password, tel, driver):
-    for _ in range(5):
+    for _ in range(20):
         try:
             driver3.get('https://twitter.com/i/flow/login')
             driver3.maximize_window()
-            element = WebDriverWait(driver3, 60).until(EC.presence_of_element_located((By.NAME, "text")))
+            element = WebDriverWait(driver3, 20).until(EC.presence_of_element_located((By.NAME, "text")))
             time.sleep(1)
             
             act = ActionChains(driver3)
