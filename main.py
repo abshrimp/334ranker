@@ -186,11 +186,11 @@ xhr.send(JSON.stringify(data));
 
 def login_twitter(account, password, tel, driver):
     global timeline_body, getuser_body, getuser_url, not_url, not_body, search_body
-    for _ in range(20):
+    for _ in range(10):
         try:
             driver.get('https://twitter.com/i/flow/login')
             driver.maximize_window()
-            element = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.NAME, "text")))
+            element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.NAME, "text")))
             time.sleep(1)
             
             act = ActionChains(driver)
@@ -333,11 +333,11 @@ def login_twitter(account, password, tel, driver):
 
 
 def login_twitter2(account, password, tel, driver):
-    for _ in range(20):
+    for _ in range(10):
         try:
             driver3.get('https://twitter.com/i/flow/login')
             driver3.maximize_window()
-            element = WebDriverWait(driver3, 20).until(EC.presence_of_element_located((By.NAME, "text")))
+            element = WebDriverWait(driver3, 30).until(EC.presence_of_element_located((By.NAME, "text")))
             time.sleep(1)
             
             act = ActionChains(driver3)
@@ -2022,14 +2022,14 @@ def start():
             options.add_argument("--disable-extensions")
             options.add_argument("--disable-gpu")
             options.add_argument('--disable-dev-shm-usage')
-            driver = webdriver.Chrome(options = options)
-            driver.set_script_timeout(5)
             driver3 = webdriver.Chrome(options = options)
             driver4 = webdriver.Chrome(options = options)
             driver4.set_window_size(589, 1)
             driver4.get(os.environ['HTML_URL'])
             wait = WebDriverWait(driver4, 10).until(EC.alert_is_present())
             Alert(driver4).accept()
+            driver = webdriver.Chrome(options = options)
+            driver.set_script_timeout(5)
             
         except Exception as e:
             traceback.print_exc()
