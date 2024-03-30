@@ -18,7 +18,6 @@ jobs:
           
       - name: Install Package
         id: set
-        continue-on-error: true
         run: |
           sudo languagesetup -langspec ja
           sudo systemsetup -settimezone Asia/Tokyo
@@ -33,7 +32,6 @@ jobs:
 
       - name: Run Python
         id: python
-        continue-on-error: true
         env:
           GAS_URL: ${{ secrets.GAS_URL }}
           GAS_URL2: ${{ secrets.GAS_URL2 }}
