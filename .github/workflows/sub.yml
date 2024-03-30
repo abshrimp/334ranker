@@ -64,6 +64,3 @@ jobs:
           exit 1
 
         
-      - uses: actions/upload-artifact@v3
-        with:
-          path: a.png
