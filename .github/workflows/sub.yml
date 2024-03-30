@@ -29,15 +29,6 @@ jobs:
           pip install selenium
           pip install requests
       
-      
-      - name: Error handling
-        if: ${{ steps.set.outcome == 'failure' }}
-        run: |
-          echo "Error handling"
-          curl -X POST https://api.github.com/repos/abshrimp/334Ranker/dispatches \
-               -H 'authorization: Bearer '${{ secrets.KEY }} \
-               --data '{"event_type": "Error handling"}'
-          exit 1
  
 
       - name: Run Python
@@ -53,14 +44,6 @@ jobs:
           TZ: "Asia/Tokyo"
         run: python main.py test
 
-      
-      - name: Error handling
-        if: ${{ steps.python.outcome == 'failure' }}
-        run: |
-          echo "Error handling"
-          curl -X POST https://api.github.com/repos/abshrimp/334Ranker/dispatches \
-               -H 'authorization: Bearer '${{ secrets.KEY }} \
-               --data '{"event_type": "Error handling"}'
-          exit 1
+    
 
         
