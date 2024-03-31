@@ -784,8 +784,6 @@ def receive(dict, driver):
             if "in_reply_to_status_id_str" not in item["status"]["data"] or item["status"]["data"]["in_reply_to_status_id_str"] == None:
                 user_id = item["status"]["data"]["user"]["id_str"]
                 text = item["status"]["data"]["full_text"].lower()
-                if "してもいいですか" in text or "しても大丈夫ですか" in text:
-                    continue
                 mentions = item["status"]["data"]["entities"]["user_mentions"]
                 for user in mentions:
                     text = text.replace("@" + user["screen_name"].lower(), "")
@@ -793,6 +791,8 @@ def receive(dict, driver):
                 if user_name == "":
                     user_name = "@" + item["status"]["data"]["user"]["screen_name"]
                 if "ふぉろー" in text or "フォロー" in text or "follow" in text or "ふぉろば" in text or "フォロバ" in text:
+                    if "してもいいですか" in text or "しても大丈夫ですか" in text:
+                        continue
                     if item["status"]["data"]["id_str"] not in idlist:
                         idlist.append(item["status"]["data"]["id_str"])
                         follow_flag = True
