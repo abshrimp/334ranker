@@ -784,6 +784,8 @@ def receive(dict, driver):
             if "in_reply_to_status_id_str" not in item["status"]["data"] or item["status"]["data"]["in_reply_to_status_id_str"] == None:
                 user_id = item["status"]["data"]["user"]["id_str"]
                 text = item["status"]["data"]["full_text"].lower()
+                if "してもいいですか" in text or "しても大丈夫ですか" in text:
+                    continue
                 mentions = item["status"]["data"]["entities"]["user_mentions"]
                 for user in mentions:
                     text = text.replace("@" + user["screen_name"].lower(), "")
