@@ -823,6 +823,8 @@ def receive(dict, driver):
                         user_name = "@" + item["status"]["data"]["user"]["screen_name"]
                     text = item["status"]["data"]["full_text"].lower()
                     if "ふぉろー" in text or "フォロー" in text or "follow" in text or "ふぉろば" in text or "フォロバ" in text:
+                        if "してもいいですか" in text or "しても大丈夫ですか" in text:
+                            continue
                         if item["status"]["data"]["id_str"] not in idlist:
                             idlist.append(item["status"]["data"]["id_str"])
                             follow_flag = True
