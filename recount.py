@@ -1557,7 +1557,7 @@ def make_ranking2(dict):
 def make_ranking(dict, driver):
     time1 = datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 34, 0)
     winner = ""
-    users = []
+    users = ["1173558244607852545"]
     dict2 = []
     for item in dict:
         if item["text"] == "334" and item["user"]["id_str"] not in users:
