@@ -2010,6 +2010,27 @@ def notice(driver):
             del req["variables"]['reply']
             print("notice tweet :")
             threading.Thread(target=reply, args=(req, driver,)).start()
+            
+            for _ in range(5):
+                try:
+                    if driver4 == "":
+                        options=Options()
+                        #options.add_argument('--headless')
+                        options.add_argument('--no-sandbox')
+                        options.add_argument("--disable-extensions")
+                        options.add_argument("--disable-gpu")
+                        options.add_argument('--disable-dev-shm-usage')
+                        driver4 = webdriver.Chrome(options = options)
+                        driver4.set_window_size(589, 1)
+                        driver4.get(os.environ['HTML_URL'])
+                        wait = WebDriverWait(driver4, 20).until(EC.alert_is_present())
+                        Alert(driver4).accept()
+            
+                except Exception as e:
+                    traceback.print_exc()
+                    time.sleep(2)
+                else:
+                    break
     
             break
         time.sleep(5)
@@ -2028,11 +2049,6 @@ def start():
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument('--disable-http2')
             driver3 = webdriver.Chrome(options = options)
-            driver4 = webdriver.Chrome(options = options)
-            driver4.set_window_size(589, 1)
-            driver4.get(os.environ['HTML_URL'])
-            wait = WebDriverWait(driver4, 10).until(EC.alert_is_present())
-            Alert(driver4).accept()
             driver = webdriver.Chrome(options = options)
             driver.set_script_timeout(5)
             
