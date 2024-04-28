@@ -10,7 +10,7 @@ jobs:
 
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - name: Setup Python
         id: set
         uses: actions/setup-python@v4
@@ -42,6 +42,7 @@ jobs:
           pip install selenium-wire
           pip install selenium
           pip install requests
+          pip install blinker==1.7.0
       
       
       - name: Error handling
