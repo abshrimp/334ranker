@@ -24,6 +24,7 @@ jobs:
           sudo systemsetup -getusingnetworktime
           sudo systemsetup -setusingnetworktime on
           pip install setuptools
+          pip install blinker
           pip install chromedriver-binary-auto
           pip install selenium-wire
           pip install selenium
