@@ -23,6 +23,7 @@ jobs:
           sudo systemsetup -settimezone Asia/Tokyo
           sudo systemsetup -getusingnetworktime
           sudo systemsetup -setusingnetworktime on
+          pip install setuptools
           pip install chromedriver-binary-auto
           pip install selenium-wire
           pip install selenium
