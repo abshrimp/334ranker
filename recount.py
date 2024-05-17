@@ -84,7 +84,7 @@ def tweet(driver, account, password, tel):
     global post_body, post_url
     for _ in range(5):
         try:
-            driver.get('https://twitter.com/Rank334_2/status/1705386885135343879')
+            driver.get('https://x.com/Rank334_2/status/1705386885135343879')
             try:
                 element = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[role=textbox]")))
             except:
@@ -93,7 +93,7 @@ def tweet(driver, account, password, tel):
                     time.sleep(1)
                     driver.find_element(By.CSS_SELECTOR, "[href='/login']").click()
                     time.sleep(20)
-                    driver.get('https://twitter.com/Rank334_2/status/1705386885135343879')
+                    driver.get('https://x.com/Rank334_2/status/1705386885135343879')
                     element = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[role=textbox]")))
                 except:
                     sys.exit(1)
@@ -154,7 +154,7 @@ function get_queryid(name, defaultId) {
 }
 
 var xhr = new XMLHttpRequest();
-xhr.open('POST', 'https://twitter.com/i/api/graphql/' + get_queryid('DeleteTweet', 'VaenaVgh5q5ih7kvyVjgtg') + '/DeleteTweet');
+xhr.open('POST', 'https://x.com/i/api/graphql/' + get_queryid('DeleteTweet', 'VaenaVgh5q5ih7kvyVjgtg') + '/DeleteTweet');
 xhr.setRequestHeader('Authorization', 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA');
 xhr.setRequestHeader('x-csrf-token', token);
 xhr.setRequestHeader('x-twitter-active-user', 'yes');
@@ -188,7 +188,7 @@ def login_twitter(account, password, tel, driver):
     global timeline_body, getuser_body, getuser_url, not_url, not_body, search_body
     for _ in range(5):
         try:
-            driver.get('https://twitter.com/i/flow/login')
+            driver.get('https://x.com/i/flow/login')
             driver.maximize_window()
             element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.NAME, "text")))
             time.sleep(1)
@@ -221,7 +221,7 @@ def login_twitter(account, password, tel, driver):
                 element_tel[0].send_keys(Keys.ENTER)
                 time.sleep(20)
 
-            driver.get('https://twitter.com/home')
+            driver.get('https://x.com/home')
             time.sleep(20)
             
             for _ in range(5):
@@ -248,7 +248,7 @@ def login_twitter(account, password, tel, driver):
                     break
                 time.sleep(0.5)
 		
-            driver.get('https://twitter.com/intent/user?user_id=1')
+            driver.get('https://x.com/intent/user?user_id=1')
             time.sleep(20)
             
             for _ in range(5):
@@ -276,7 +276,7 @@ def login_twitter(account, password, tel, driver):
                     break
                 time.sleep(0.5)
 
-            driver.get('https://twitter.com/notifications/mentions')
+            driver.get('https://x.com/notifications/mentions')
             time.sleep(20)
             
             for _ in range(5):
@@ -335,7 +335,7 @@ def login_twitter(account, password, tel, driver):
 def login_twitter2(account, password, tel, driver):
     for _ in range(5):
         try:
-            driver3.get('https://twitter.com/i/flow/login')
+            driver3.get('https://x.com/i/flow/login')
             driver3.maximize_window()
             element = WebDriverWait(driver3, 60).until(EC.presence_of_element_located((By.NAME, "text")))
             time.sleep(1)
@@ -408,7 +408,7 @@ def login_twitter2(account, password, tel, driver):
             time.sleep(3)
             
             
-            driver3.get('https://twitter.com/Rank334_2/status/1705386885135343879')
+            driver3.get('https://x.com/Rank334_2/status/1705386885135343879')
             try:
                 element = WebDriverWait(driver3, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[role=textbox]")))
             except:
@@ -417,7 +417,7 @@ def login_twitter2(account, password, tel, driver):
                     time.sleep(1)
                     driver3.find_element(By.CSS_SELECTOR, "[href='/login']").click()
                     time.sleep(2)
-                    driver3.get('https://twitter.com/Rank334_2/status/1705386885135343879')
+                    driver3.get('https://x.com/Rank334_2/status/1705386885135343879')
                     element = WebDriverWait(driver3, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[role=textbox]")))
                 except:
                     #sys.exit(1)
@@ -477,7 +477,7 @@ function get_queryid(name, defaultId) {
 }
 
 var xhr = new XMLHttpRequest();
-xhr.open('POST', 'https://twitter.com/i/api/graphql/' + get_queryid('DeleteTweet', 'VaenaVgh5q5ih7kvyVjgtg') + '/DeleteTweet');
+xhr.open('POST', 'https://x.com/i/api/graphql/' + get_queryid('DeleteTweet', 'VaenaVgh5q5ih7kvyVjgtg') + '/DeleteTweet');
 xhr.setRequestHeader('Authorization', 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA');
 xhr.setRequestHeader('x-csrf-token', token);
 xhr.setRequestHeader('x-twitter-active-user', 'yes');
@@ -739,7 +739,7 @@ def following(id, driver):
 if (window.following === undefined) window.following = {};
 var id = arguments[0];
 window.following[id] = "";
-var url = "https://api.twitter.com/1.1/friendships/create_all.json?user_id=" + id;
+var url = "https://x.com/i/api/1.1/friendships/create_all.json?user_id=" + id;
     
 var cookie = document.cookie.replaceAll(" ", "").split(";");
 var token = "";
@@ -1118,7 +1118,7 @@ let out4 = [];
             return `${e[0].replaceAll("%22", "")}=${encodeURIComponent(JSON.stringify(e[1]))}`
         }).join("&")
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'https://api.twitter.com/graphql/' + queryid2 + '/SearchTimeline' + param);
+        xhr.open('GET', 'https://x.com/i/api/graphql/' + queryid2 + '/SearchTimeline' + param);
         setheader(xhr);
         xhr.setRequestHeader('content-type', 'application/json');
         xhr.onreadystatechange = function () {
@@ -1227,7 +1227,7 @@ function get_queryid(name, defaultId) {
 }
 
 var queryid = get_queryid('CreateRetweet', 'ojPdsZsimiJrUGLR1sjUtA');
-var url = 'https://api.twitter.com/graphql/' + queryid + '/CreateRetweet';
+var url = 'https://x.com/i/api/graphql/' + queryid + '/CreateRetweet';
 
 var cookie = document.cookie.replaceAll(" ", "").split(";");
 var token = "";
@@ -1269,7 +1269,7 @@ var blob = new Blob([buffer.buffer], { type: "image/png" });
 var data = new FormData();
 data.append("media", blob, "blob");
 
-var url = 'https://upload.twitter.com/i/media/upload.json?command=INIT&total_bytes=' + blob.size + '&media_type=image%2Fjpeg&media_category=tweet_image';
+var url = 'https://upload.x.com/i/media/upload.json?command=INIT&total_bytes=' + blob.size + '&media_type=image%2Fjpeg&media_category=tweet_image';
 
 var cookie = document.cookie.replaceAll(" ", "").split(";");
 var token = "";
@@ -1292,7 +1292,7 @@ xhr.withCredentials = true;
 xhr.send();
 
 function append(id) {
-    let url = 'https://upload.twitter.com/i/media/upload.json?command=APPEND&media_id=' + id + '&segment_index=0';
+    let url = 'https://upload.x.com/i/media/upload.json?command=APPEND&media_id=' + id + '&segment_index=0';
 
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
@@ -1309,7 +1309,7 @@ function append(id) {
 }
 
 function final(id) {
-    let url = 'https://upload.twitter.com/i/media/upload.json?command=FINALIZE&media_id=' + id;
+    let url = 'https://upload.x.com/i/media/upload.json?command=FINALIZE&media_id=' + id;
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (this.readyState == 4) {
@@ -1734,7 +1734,7 @@ function get_tweets2(max_id) {
 function get_tweets3(d) {
     try {
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://api.twitter.com/graphql/' + queryid + '/HomeLatestTimeline');
+        xhr.open('POST', 'https://x.com/i/api/graphql/' + queryid + '/HomeLatestTimeline');
         setheader(xhr);
         xhr.setRequestHeader('content-type', 'application/json');
         xhr.onreadystatechange = function () {
@@ -1800,7 +1800,7 @@ function get_tweets4(d) {
             return `${e[0].replaceAll("%22", "")}=${encodeURIComponent(JSON.stringify(e[1]))}`
         }).join("&")
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'https://api.twitter.com/graphql/' + queryid2 + '/SearchTimeline' + param);
+        xhr.open('GET', 'https://x.com/i/api/graphql/' + queryid2 + '/SearchTimeline' + param);
         setheader(xhr);
         xhr.setRequestHeader('content-type', 'application/json');
         xhr.onreadystatechange = function () {
@@ -1873,7 +1873,7 @@ function get_tweets5(d) {
             return `${e[0].replaceAll("%22", "")}=${encodeURIComponent(JSON.stringify(e[1]))}`
         }).join("&")
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'https://api.twitter.com/graphql/' + queryid2 + '/SearchTimeline' + param);
+        xhr.open('GET', 'https://x.com/i/api/graphql/' + queryid2 + '/SearchTimeline' + param);
         setheader(xhr);
         xhr.setRequestHeader('content-type', 'application/json');
         xhr.onreadystatechange = function () {
