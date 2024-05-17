@@ -294,7 +294,7 @@ def login_twitter(account, password, tel, driver):
                     break
                 time.sleep(0.5)
             
-            driver.get('https://twitter.com/search?q=334&src=typed_query&f=live')
+            driver.get('https://x.com/search?q=334&src=typed_query&f=live')
             time.sleep(20)
             
             for _ in range(5):
@@ -378,7 +378,7 @@ def login_twitter2(account, password, tel, driver):
     global post_body_2, search2_body
     for _ in range(5):
         try:
-            driver3.get('https://twitter.com/search?q=@rank334&src=typed_query&f=live')
+            driver3.get('https://x.com/search?q=@rank334&src=typed_query&f=live')
             time.sleep(20)
             
             for _ in range(5):
