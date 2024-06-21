@@ -217,7 +217,7 @@ def login_twitter(account, password, tel, driver):
                     act.perform()
                 time.sleep(2)
                 driver.save_screenshot("b.png")
-                element_tel[0].send_keys(Keys.ENTER)
+                act.send_keys(Keys.ENTER)
                 elcount = 0
                 time.sleep(20)
 
