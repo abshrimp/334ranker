@@ -204,7 +204,14 @@ def login_twitter(account, password, tel, driver):
             time.sleep(2)
             element_account.send_keys(Keys.ENTER)
             time.sleep(20)
-
+            
+            element_tel = driver.find_elements(By.NAME, "text")
+            if len(element_tel) > 0:
+                element_tel[0].send_keys(tel)
+                time.sleep(2) 
+                element_tel[0].send_keys(Keys.ENTER)
+                time.sleep(20)
+                
             element_pass = driver.find_elements(By.TAG_NAME, "input")[1]
             for i in range(len(password)):
                 time.sleep(1)
@@ -213,13 +220,6 @@ def login_twitter(account, password, tel, driver):
             time.sleep(2)
             element_pass.send_keys(Keys.ENTER)
             time.sleep(20)
-
-            element_tel = driver.find_elements(By.NAME, "text")
-            if len(element_tel) > 0:
-                element_tel[0].send_keys(tel)
-                time.sleep(2) 
-                element_tel[0].send_keys(Keys.ENTER)
-                time.sleep(20)
 
             driver.get('https://x.com/home')
             time.sleep(20)
