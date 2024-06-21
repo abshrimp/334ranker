@@ -205,16 +205,20 @@ def login_twitter(account, password, tel, driver):
             element_account.send_keys(Keys.ENTER)
             time.sleep(20)
 
-            element_tel = driver.find_elements(By.NAME, "text")
-            if len(element_tel) > 0:
-                element_tel[0].send_keys(tel)
-                time.sleep(2) 
+            element_tel = driver.find_elements(By.TAG_NAME, "input")   
+            if len(element_tel) < 2:   
+                element_tel[0].send_keys("")       
+                for i in range(len(tel)):   
+                    time.sleep(1)    
+                    act.send_keys(tel[i])
+                    act.perform()
+                time.sleep(2)
                 element_tel[0].send_keys(Keys.ENTER)
                 time.sleep(20)
                 
-            element_pass = driver.find_elements(By.TAG_NAME, "input")[1]
-            for i in range(len(password)):
-                time.sleep(1)
+            element_pass = driver.find_elements(By.TAG_NAME, "input")[1]      
+            for i in range(len(password)):          
+                time.sleep(1          
                 act.send_keys(password[i])
                 act.perform()
             time.sleep(2)
