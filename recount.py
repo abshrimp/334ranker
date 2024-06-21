@@ -222,8 +222,9 @@ def login_twitter(account, password, tel, driver):
                 time.sleep(20)
 
             driver.save_screenshot("c.png")
+            sys.exit(1)
                 
-            element_pass = driver.find_elements(By.TAG_NAME, "input")[elcount]      
+            element_pass = driver.find_elements(By.TAG_NAME, "input")[1]      
             for i in range(len(password)):          
                 time.sleep(1)    
                 act.send_keys(password[i])
