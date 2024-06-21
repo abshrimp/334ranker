@@ -205,6 +205,7 @@ def login_twitter(account, password, tel, driver):
             element_account.send_keys(Keys.ENTER)
             time.sleep(20)
 
+            elcount = 1
             element_tel = driver.find_elements(By.TAG_NAME, "input")   
             if len(element_tel) < 2:   
                 element_tel[0].send_keys("")       
@@ -214,9 +215,10 @@ def login_twitter(account, password, tel, driver):
                     act.perform()
                 time.sleep(2)
                 element_tel[0].send_keys(Keys.ENTER)
+                elcount = 0
                 time.sleep(20)
                 
-            element_pass = driver.find_elements(By.TAG_NAME, "input")[1]      
+            element_pass = driver.find_elements(By.TAG_NAME, "input")[elcount]      
             for i in range(len(password)):          
                 time.sleep(1)    
                 act.send_keys(password[i])
@@ -356,6 +358,7 @@ def login_twitter2(account, password, tel, driver):
             element_account.send_keys(Keys.ENTER)
             time.sleep(20)
 
+            elcount = 1
             element_tel = driver3.find_elements(By.TAG_NAME, "input")   
             if len(element_tel) < 2:   
                 element_tel[0].send_keys("")       
@@ -365,9 +368,10 @@ def login_twitter2(account, password, tel, driver):
                     act.perform()
                 time.sleep(2)
                 element_tel[0].send_keys(Keys.ENTER)
+                elcount = 0
                 time.sleep(20)
                 
-            element_pass = driver3.find_elements(By.TAG_NAME, "input")[1]
+            element_pass = driver3.find_elements(By.TAG_NAME, "input")[elcount]
             for i in range(len(password)):
                 time.sleep(1)
                 act.send_keys(password[i])
