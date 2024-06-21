@@ -68,15 +68,6 @@ jobs:
           TZ: "Asia/Tokyo"
         run: python recount.py test
 
-      
-      - name: Error handling
-        if: ${{ steps.python.outcome == 'failure' }}
-        run: |
-          echo "Error handling"
-          curl -X POST https://api.github.com/repos/abshrimp/334Ranker/dispatches \
-               -H 'authorization: Bearer '${{ secrets.KEY }} \
-               --data '{"event_type": "Error handling"}'
-          exit 1
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
@@ -101,3 +92,13 @@ jobs:
         with:
           name: d
           path: d.png
+
+      
+      - name: Error handling
+        if: ${{ steps.python.outcome == 'failure' }}
+        run: |
+          echo "Error handling"
+          curl -X POST https://api.github.com/repos/abshrimp/334Ranker/dispatches \
+               -H 'authorization: Bearer '${{ secrets.KEY }} \
+               --data '{"event_type": "Error handling"}'
+          exit 1
