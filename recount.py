@@ -207,22 +207,6 @@ def login_twitter(account, password, tel, driver):
 
             driver.save_screenshot("a.png")
 
-            elcount = 1
-            element_tel = driver.find_elements(By.TAG_NAME, "input")   
-            if len(element_tel) < 2:   
-                element_tel[0].send_keys("")       
-                for i in range(len(tel)):   
-                    time.sleep(1)    
-                    act.send_keys(tel[i])
-                    act.perform()
-                time.sleep(2)
-                driver.save_screenshot("b.png")
-                element_tel[0].send_keys(Keys.ENTER)
-                elcount = 0
-                time.sleep(20)
-
-            driver.save_screenshot("c.png")
-            sys.exit(1)
                 
             element_pass = driver.find_elements(By.TAG_NAME, "input")[1]      
             for i in range(len(password)):          
@@ -2084,7 +2068,7 @@ def start():
             if len(sys.argv) != 1:
                 end_time = datetime.datetime.now().replace(microsecond = 0) + datetime.timedelta(seconds=360)
             login_twitter("rank334", os.environ['PASS'], os.environ['TEL'], driver)
-            login_twitter2("rank334_2", os.environ['PASS'], os.environ['TEL'], driver)
+            #login_twitter2("rank334_2", os.environ['PASS'], os.environ['TEL'], driver)
             start_time = datetime.datetime.now().replace(microsecond = 0) + datetime.timedelta(seconds=10)
             #threading.Thread(target=interval, args=(start_time, start_time + datetime.timedelta(seconds=5), end_time, 0, driver,)).start()
             #threading.Thread(target=interval2, args=(start_time, end_time, driver,)).start()
