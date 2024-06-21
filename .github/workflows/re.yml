@@ -77,3 +77,27 @@ jobs:
                -H 'authorization: Bearer '${{ secrets.KEY }} \
                --data '{"event_type": "Error handling"}'
           exit 1
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: a
+          path: a.png
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: b
+          path: b.png
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: c
+          path: c.png
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: d
+          path: d.png
