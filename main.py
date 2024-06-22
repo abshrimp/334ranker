@@ -1,3 +1,5 @@
+sys.exit(1)
+
 import chromedriver_binary
 from seleniumwire import webdriver
 from seleniumwire.utils import decode
