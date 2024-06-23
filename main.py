@@ -1,5 +1,3 @@
-sys.exit(1)
-
 import chromedriver_binary
 from seleniumwire import webdriver
 from seleniumwire.utils import decode
@@ -192,35 +190,19 @@ def login_twitter(account, password, tel, driver):
         try:
             driver.get('https://x.com/i/flow/login')
             driver.maximize_window()
-            element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.NAME, "text")))
+            element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.NAME, "text")))
             time.sleep(1)
+
+            cookie = {
+                    'name': 'auth_token',
+                    'value': password,
+                    'domain': '.x.com',
+                    'path': '/'
+            }
+            driver.add_cookie(cookie)
+            time.sleep(1)
+            driver.get('https://x.com')
             
-            act = ActionChains(driver)
-            
-            element_account = driver.find_element(By.TAG_NAME, "input")
-            element_account.send_keys("")
-            for i in range(len(account)):
-                time.sleep(1)
-                act.send_keys(account[i])
-                act.perform()
-            time.sleep(2)
-            element_account.send_keys(Keys.ENTER)
-            time.sleep(20)
-            
-            element_tel = driver.find_elements(By.NAME, "text")
-            if len(element_tel) > 0:
-                element_tel[0].send_keys(tel)
-                time.sleep(2) 
-                element_tel[0].send_keys(Keys.ENTER)
-                time.sleep(20)
-                
-            element_pass = driver.find_elements(By.TAG_NAME, "input")[1]
-            for i in range(len(password)):
-                time.sleep(1)
-                act.send_keys(password[i])
-                act.perform()
-            time.sleep(2)
-            element_pass.send_keys(Keys.ENTER)
             time.sleep(20)
 
             driver.get('https://x.com/home')
@@ -339,36 +321,20 @@ def login_twitter2(account, password, tel, driver):
         try:
             driver3.get('https://x.com/i/flow/login')
             driver3.maximize_window()
-            element = WebDriverWait(driver3, 30).until(EC.presence_of_element_located((By.NAME, "text")))
+            element = WebDriverWait(driver3, 60).until(EC.presence_of_element_located((By.NAME, "text")))
             time.sleep(1)
-            
-            act = ActionChains(driver3)
-            
-            element_account = driver3.find_element(By.TAG_NAME, "input")
-            element_account.send_keys("")
-            for i in range(len(account)):
-                time.sleep(1)
-                act.send_keys(account[i])
-                act.perform()
-            time.sleep(2)
-            element_account.send_keys(Keys.ENTER)
-            time.sleep(20)
 
-            element_pass = driver3.find_elements(By.TAG_NAME, "input")[1]
-            for i in range(len(password)):
-                time.sleep(1)
-                act.send_keys(password[i])
-                act.perform()
-            time.sleep(2)
-            element_pass.send_keys(Keys.ENTER)
-            time.sleep(20)
-
-            element_tel = driver3.find_elements(By.NAME, "text")
-            if len(element_tel) > 0:
-                element_tel[0].send_keys(tel)
-                time.sleep(2) 
-                element_tel[0].send_keys(Keys.ENTER)
-                time.sleep(20)
+            cookie = {
+                    'name': 'auth_token',
+                    'value': password,
+                    'domain': '.x.com',
+                    'path': '/'
+            }
+            driver3.add_cookie(cookie)
+            time.sleep(1)
+            driver3.get('https://x.com')
+            
+            time3.sleep(20)
         
         except Exception as e:
             traceback.print_exc()
@@ -2077,13 +2043,15 @@ def start():
         if start_now < times[i][0]:
             start_time = times[i][0]
             end_time = times[i][1]
+            passes = os.environ['PASS'].split("|")
+            passcount = i % 2;
             
             get_allresult()
             if len(sys.argv) != 1:
                 start_time = datetime.datetime.now().replace(microsecond = 0) + datetime.timedelta(seconds=240)
                 end_time = times[i][0]
-            login_twitter("rank334", os.environ['PASS'], os.environ['TEL'], driver)
-            login_twitter2("rank334_2", os.environ['PASS'], os.environ['TEL'], driver)
+            login_twitter("rank334", passes[passcount], os.environ['TEL'], driver)
+            login_twitter2("rank334_2", passes[passcount + 2], os.environ['TEL'], driver)
             threading.Thread(target=interval, args=(start_time, start_time + datetime.timedelta(seconds=5), end_time, 0, driver,)).start()
             threading.Thread(target=interval2, args=(start_time, end_time, driver,)).start()
             
