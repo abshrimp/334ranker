@@ -192,52 +192,15 @@ def login_twitter(account, password, tel, driver):
             driver.maximize_window()
             element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.NAME, "text")))
             time.sleep(1)
+
+            driver.add_cookie({"auth_token": password})
+            time.sleep(1)
+            driver.refresh()
             
-            act = ActionChains(driver)
-            
-            element_account = driver.find_element(By.TAG_NAME, "input")
-            element_account.send_keys("")
-            for i in range(len(account)):
-                time.sleep(1)
-                act.send_keys(account[i])
-                act.perform()
-            time.sleep(2)
-            element_account.send_keys(Keys.ENTER)
-            time.sleep(20)
+            time.sleep(8)
 
             driver.save_screenshot("a.png")
-
-            element_tel = driver.find_elements(By.TAG_NAME, "input")
-            if len(element_tel) < 2:   
-                element_tel[0].send_keys("")
-                for i in range(len(tel)):   
-                    time.sleep(1)    
-                    act.send_keys(tel[i])
-                    act.perform()
-                time.sleep(2)
-                driver.save_screenshot("b.png")
-                
-                btns = driver.find_elements(By.TAG_NAME, "button")
-                for btn in btns:
-                    print(btn.get_attribute('innerHTML'))
-                    if "Next" in btn.get_attribute('innerHTML') or "次へ" in btn.get_attribute('innerHTML'):
-                        btn.click()
-                        break
-                time.sleep(1)
-
-            driver.save_screenshot("c.png")
             sys.exit(1)
-            
-            element_pass = driver.find_elements(By.TAG_NAME, "input")[1]      
-            for i in range(len(password)):          
-                time.sleep(1)    
-                act.send_keys(password[i])
-                act.perform()
-            time.sleep(2)
-            element_pass.send_keys(Keys.ENTER)
-            time.sleep(20)
-
-            driver.save_screenshot("d.png")
 
             driver.get('https://x.com/home')
             time.sleep(20)
