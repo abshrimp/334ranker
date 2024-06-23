@@ -225,7 +225,7 @@ for (let i = 0; i < btns.length; i++) {
     }
 }
 """)
-                time.sleep(20)
+                time.sleep(1)
 
             driver.save_screenshot("c.png")
             sys.exit(1)
