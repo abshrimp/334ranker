@@ -206,7 +206,6 @@ def login_twitter(account, password, tel, driver):
             time.sleep(20)
 
             driver.save_screenshot("a.png")
-            sys.exit(1)
 
             driver.get('https://x.com/home')
             time.sleep(20)
@@ -2052,12 +2051,14 @@ def start():
         if start_now < times[i][0]:
             start_time = times[i][0]
             end_time = times[i][1]
+            passes = os.environ['PASS'].split("|")
+            passcount = i % 2;
             
             #get_allresult()
             if len(sys.argv) != 1:
                 end_time = datetime.datetime.now().replace(microsecond = 0) + datetime.timedelta(seconds=360)
-            login_twitter("rank334", os.environ['PASS'], os.environ['TEL'], driver)
-            #login_twitter2("rank334_2", os.environ['PASS'], os.environ['TEL'], driver)
+            login_twitter("rank334", passes[passcount], os.environ['TEL'], driver)
+            #login_twitter2("rank334_2", passes[passcount + 2], os.environ['TEL'], driver)
             start_time = datetime.datetime.now().replace(microsecond = 0) + datetime.timedelta(seconds=10)
             #threading.Thread(target=interval, args=(start_time, start_time + datetime.timedelta(seconds=5), end_time, 0, driver,)).start()
             #threading.Thread(target=interval2, args=(start_time, end_time, driver,)).start()
