@@ -535,7 +535,7 @@ xhr.send(JSON.stringify(data));
 
 def reply(req, driver):
     print("reply start", datetime.datetime.now())
-    #return
+    return
     #              ＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜ランク投稿しないときはここ付ける
     driver.execute_script("""
 var url = arguments[0];
@@ -1592,7 +1592,7 @@ def make_ranking(dict, driver):
                 result = '{:.3f}'.format(res)
                 if winner == "" or result == winner:
                     winner = result
-                    threading.Thread(target=retweet, args=(item["id_str"], driver,)).start()
+                    #threading.Thread(target=retweet, args=(item["id_str"], driver,)).start()
                     #           ＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜＜場合によって付ける
 
                 img_src = "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png"
