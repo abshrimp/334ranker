@@ -193,11 +193,17 @@ def login_twitter(account, password, tel, driver):
             element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.NAME, "text")))
             time.sleep(1)
 
-            driver.add_cookie({"auth_token": password})
+            cookie = {
+                    'name': 'auth_token',
+                    'value': password,
+                    'domain': '.x.com',
+                    'path': '/'
+            }
+            driver.add_cookie(cookie)
             time.sleep(1)
-            driver.refresh()
+            driver.get('https://x.com')
             
-            time.sleep(8)
+            time.sleep(20)
 
             driver.save_screenshot("a.png")
             sys.exit(1)
