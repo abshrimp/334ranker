@@ -334,7 +334,7 @@ def login_twitter2(account, password, tel, driver):
             time.sleep(1)
             driver3.get('https://x.com')
             
-            time3.sleep(20)
+            time.sleep(20)
         
         except Exception as e:
             traceback.print_exc()
