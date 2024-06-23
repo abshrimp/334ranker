@@ -217,10 +217,15 @@ def login_twitter(account, password, tel, driver):
                     act.perform()
                 time.sleep(2)
                 driver.save_screenshot("b.png")
-                btn = driver.find_elements(By.TAG_NAME, "button")
-                for el in btn:
-                    print(el.get_attribute('innerHTML'))
-                btn[2].click()
+                driver.execute_script("""
+var btns = document.getElementsByTagName("button");
+for (let i = 0; i < btns.length; i++) {
+    if (btns[i].innerHTML.includes("Next")) {
+        btns[i].click();
+        break;
+    }
+}
+""")
                 time.sleep(20)
 
             driver.save_screenshot("c.png")
