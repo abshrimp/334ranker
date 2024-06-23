@@ -210,7 +210,6 @@ def login_twitter(account, password, tel, driver):
             element_tel = driver.find_elements(By.TAG_NAME, "input")
             if len(element_tel) < 2:   
                 element_tel[0].send_keys("")
-                element_tel[0].send_keys("0") 
                 for i in range(len(tel)):   
                     time.sleep(1)    
                     act.send_keys(tel[i])
