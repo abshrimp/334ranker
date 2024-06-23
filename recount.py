@@ -206,7 +206,7 @@ def login_twitter(account, password, tel, driver):
             time.sleep(20)
 
             driver.save_screenshot("a.png")
-            sys.exit(1)
+            
             driver.get('https://x.com/home')
             time.sleep(20)
             
