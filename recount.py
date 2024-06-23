@@ -207,9 +207,7 @@ def login_twitter(account, password, tel, driver):
 
             driver.save_screenshot("a.png")
 
-
-            elcount = 1
-            element_tel = driver.find_elements(By.TAG_NAME, "input")   
+            element_tel = driver.find_elements(By.TAG_NAME, "input")
             if len(element_tel) < 2:   
                 element_tel[0].send_keys("")
                 element_tel[0].send_keys("0") 
@@ -219,10 +217,8 @@ def login_twitter(account, password, tel, driver):
                     act.perform()
                 time.sleep(2)
                 driver.save_screenshot("b.png")
-                element_tel[0].key_down(Keys.ENTER)
-                time.sleep(1)
-                element_tel[0].key_up(Keys.ENTER)
-                elcount = 0
+                btn = driver.find_elements(By.TAG_NAME, "button")[1]
+                btn.click()
                 time.sleep(20)
 
             driver.save_screenshot("c.png")
