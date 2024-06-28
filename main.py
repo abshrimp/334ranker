@@ -755,9 +755,9 @@ def receive(dict, driver):
                 mentions = item["status"]["data"]["entities"]["user_mentions"]
                 for user in mentions:
                     text = text.replace("@" + user["screen_name"].lower(), "")
-                user_name = item["status"]["data"]["user"]["name"]
-                if user_name == "":
-                    user_name = "@" + item["status"]["data"]["user"]["screen_name"]
+                #user_name = item["status"]["data"]["user"]["name"]
+                #if user_name == "":
+                user_name = "@ " + item["status"]["data"]["user"]["screen_name"]
                 if "ふぉろー" in text or "フォロー" in text or "follow" in text or "ふぉろば" in text or "フォロバ" in text:
                     if "してもいいですか" in text or "しても大丈夫ですか" in text:
                         continue
@@ -767,7 +767,7 @@ def receive(dict, driver):
                         if item["status"]["data"]["user"]["following"] == True:
                             rep_text = "既にフォローしています"
                         else:
-                            print("フォロー : " + user_name + "  @" + item["status"]["data"]["user"]["screen_name"])
+                            print("フォロー : " + item["status"]["data"]["user"]["name"] + "  @" + item["status"]["data"]["user"]["screen_name"])
                             followed = get_followed(user_id, driver)
                             if followed == 1:
                                 follow = following(user_id, driver)
@@ -786,9 +786,9 @@ def receive(dict, driver):
             else:
                 if item["status"]["data"]["in_reply_to_user_id_str"] == ranker_id or item["status"]["data"]["in_reply_to_user_id_str"] == ranker_id_2:
                     user_id = item["status"]["data"]["user"]["id_str"]
-                    user_name = item["status"]["data"]["user"]["name"]
-                    if user_name == "":
-                        user_name = "@" + item["status"]["data"]["user"]["screen_name"]
+                    #user_name = item["status"]["data"]["user"]["name"]
+                    #if user_name == "":
+                    user_name = "@ " + item["status"]["data"]["user"]["screen_name"]
                     text = item["status"]["data"]["full_text"].lower()
                     if "ふぉろー" in text or "フォロー" in text or "follow" in text or "ふぉろば" in text or "フォロバ" in text:
                         if "してもいいですか" in text or "しても大丈夫ですか" in text:
@@ -799,7 +799,7 @@ def receive(dict, driver):
                             if item["status"]["data"]["user"]["following"] == True:
                                 rep_text = "既にフォローしています"
                             else:
-                                print("フォロー : " + user_name + "  @" + item["status"]["data"]["user"]["screen_name"])
+                                print("フォロー : " + item["status"]["data"]["user"]["name"] + "  @" + item["status"]["data"]["user"]["screen_name"])
                                 followed = get_followed(user_id, driver)
                                 if followed == 1:
                                     follow = following(user_id, driver)
@@ -829,9 +829,10 @@ def receive(dict, driver):
                     if flag:
                         if user_name == "":
                             if user_id == item["status"]["data"]["user"]["id_str"]:
-                                user_name = item["status"]["data"]["user"]["name"]
+                                #user_name = item["status"]["data"]["user"]["name"]
+                                user_name = "@ " + item["status"]["data"]["in_reply_to_screen_name"]
                             if user_name == "":
-                                user_name = "@" + item["status"]["data"]["in_reply_to_screen_name"]
+                                user_name = "@ " + item["status"]["data"]["in_reply_to_screen_name"]
                         rep_text = has_rank(user_id, user_name, item)
                         if rep_text == True:
                             rep_text = "ランキングは準備中です\nしばらくお待ちください"
