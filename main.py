@@ -849,7 +849,7 @@ def receive(dict, driver):
                     req["variables"]["reply"]["in_reply_to_tweet_id"] = item["status"]["data"]["id_str"]
                     req["variables"]["tweet_text"] = rep_text
                     limit += 1
-                    if limit >= 290 and datetime.datetime.now() < datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 45, 0):
+                    if limit >= 250 and datetime.datetime.now() < datetime.datetime(start_now.year, start_now.month, start_now.day, 3, 45, 0):
                         threading.Thread(target=reply2, args=([json.dumps(req)],)).start()
                     else:
                         threading.Thread(target=reply, args=(req, driver,)).start()
