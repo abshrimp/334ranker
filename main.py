@@ -2045,7 +2045,7 @@ def start():
             start_time = times[i][0]
             end_time = times[i][1]
             passes = os.environ['PASS'].split("|")
-            passcount = i % 2;
+            passcount = i % 2
             
             get_allresult()
             if len(sys.argv) != 1:
