@@ -11,28 +11,28 @@ from requests_oauthlib import OAuth1Session
 
 
 TIME334 = [3, 34]
-KEYWORD = '334'
-PHP_URL = os.environ['PHP_URL']
-TOKENS = os.environ['TOKENS']
-API_KEYS = os.environ['KEYS']
-HTML_URL = 'https://abshrimp.github.io/334ranker/'
-HTML_URL2 = 'https://abshrimp.github.io/334ranker/index2.html'
-ANDROID_AUTH = os.environ['AUTH']
+KEYWORD = "334"
+PHP_URL = os.environ["PHP_URL"]
+TOKENS = os.environ["TOKENS"]
+API_KEYS = os.environ["KEYS"]
+HTML_URL = "https://abshrimp.github.io/334ranker/"
+HTML_URL2 = "https://abshrimp.github.io/334ranker/index2.html"
+ANDROID_AUTH = os.environ["AUTH"]
 clients = ['Twitter for iPhone',  'Twitter for Android',  'Twitter Web Client',  'TweetDeck',  'TweetDeck Web App',  'Twitter for iPad',  'Twitter for Mac',  'Twitter Web App',  'Twitter Lite',  'Mobile Web (M2)',  'Twitter for Windows',  'Janetter',  'Janetter for Android',  'Janetter Pro for iPhone',  'Janetter for Mac',  'Janetter Pro for Android',  'Tweetbot for iΟS',  'Tweetbot for iOS',  'Tweetbot for Mac',  'twitcle plus',  'ツイタマ',  'ツイタマ for Android',  'ツイタマ+ for Android',  'Sobacha',  'SobaCha',  'Metacha',  'MetaCha',  'MateCha',  'ツイッターするやつ',  'ツイッターするやつγ',  'ツイッターするやつγ pro',  'jigtwi',  'feather for iOS',  'hamoooooon',  'Hel2um on iOS',  'Hel1um Pro on iOS',  'Hel1um on iOS',  'undefined']
 
-records_rank, today_result, driver, request_body, request_header = {}, {}, {}, {}, {}
+records_rank, today_result, request_body, request_header = {}, {}, {}, {}
 past_records, rep_accounts, search_accounts = [], [], []
 today_joined = 0
-joined_num = {'max_pt_rank': 0, 'now_pt_rank': 0}
+joined_num = {"max_pt_rank": 0, "now_pt_rank": 0}
 prepare_flag = False
 
-# main_account = [name, token, secret, auth_token]
-# rep_accounts = [[name, token, secret], ...]
+# main_account = [name, token, secret] nameは小文字で
+# rep_accounts = [[name, token, secret], ...] nameは小文字で
 # search_accounts = [[token, secret], ...]
-# name$token$secret$auth_token|name$token$secret|token$secret#token$secret#...
+# name$token$secret|name$token$secret|token$secret#token$secret#...
 
-split_tokens = TOKENS.split('|')
-main_account = split_tokens[0].split('$')
+split_tokens = TOKENS.split("|")
+main_account = split_tokens[0].split("$")
 tokens = split_tokens[1].split("#")
 for account in tokens:
     rep_accounts.append(account.split("$"))
@@ -44,95 +44,207 @@ CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET = API_KEYS.spli
 oauth1 = OAuth1Session(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 consumer_key, consumer_secret, kdt, x_twitter_client_adid, x_client_uuid, x_twitter_client_deviceid = ANDROID_AUTH.split("|")
 
-android_headers = {
-    'Host': 'api.twitter.com',
-    'Timezone': 'Asia/Tokyo',
-    'Os-Security-Patch-Level': '2021-08-05',
-    'Optimize-Body': 'true',
-    'Accept': 'application/json',
-    'X-Twitter-Client': 'TwitterAndroid',
-    'X-Attest-Token': 'no_token',
-    'User-Agent': 'TwitterAndroid/10.53.2-release.0 (310532000-r-0)',
-    'X-Twitter-Client-Adid': x_twitter_client_adid,
-    'X-Twitter-Client-Language': 'en-US',
-    'X-Client-Uuid': x_client_uuid,
-    'X-Twitter-Client-Deviceid': x_twitter_client_deviceid,
-    'X-Twitter-Client-Version': '10.53.2-release.0',
-    'Cache-Control': 'no-store',
-    'X-Twitter-Active-User': 'yes',
-    'X-Twitter-Api-Version': '5',
-    'Kdt': kdt,
-    'X-Twitter-Client-Limit-Ad-Tracking': '0',
-    'Accept-Language': 'en-US',
-    'X-Twitter-Client-Flavor': ''
-}
-
-
-def print_log():
-    logs = driver.get_log('browser')
-    for log in logs:
-        if all(k in log for k in ['message', 'timestamp']) and not any(x in log['message'] for x in ['Please make sure it has an appropriate', 'keyregistry', 'live_pipeline', 'all.json']):
-            print(datetime.datetime.fromtimestamp(log['timestamp'] / 1000))
-            print(log)
-            print()
 
 def TweetIdTime(id):
-    """ツイートIDを投稿時刻に変換"""
     return datetime.datetime.fromtimestamp(((id >> 22) + 1288834974657) / 1000.0)
 
-def js_geturl(graphql_id):
-    return """
-    function get_queryid(name, defaultId) {
-        try {
-            let queryids = webpackChunk_twitter_responsive_web;
-            for (let i = 0; i < queryids.length; i++) {
-                for (let key in queryids[i][1]) {
-                    try {
-                        if (queryids[i][1][key].length === 1) {
-                            let tmp = {};
-                            queryids[i][1][key](tmp);
-                            if (tmp.exports.operationName === name) return tmp.exports.queryId;
-                        }
-                    } catch { }
-                }
-            }
-            return defaultId;
-        } catch {
-            return defaultId;
+
+def If(bool, t, f):
+    return t if bool else f
+
+
+def sendAndroid(url, params, oauth_token, token_secret, http_method="GET"):
+    try:
+        host = "api.twitter.com"
+        url = "https://" + host + url
+
+        oauth_nonce = "".join([str(random.randint(0, 9)) for _ in range(32)])
+        oauth_timestamp = str(int(time.time()))
+        parameters = {
+            "oauth_consumer_key": consumer_key,
+            "oauth_token": oauth_token,
+            "oauth_signature_method": "HMAC-SHA1",
+            "oauth_timestamp": oauth_timestamp,
+            "oauth_nonce": oauth_nonce,
+            "oauth_version": "1.0",
         }
+        sign_params = If (http_method == "POST" and "graphql" in url, parameters, {**parameters, **params})
+        parameter_string = "&".join(f"{k}={v}" for k, v in sorted(sign_params.items()))
+        signature_base_string = f"{http_method}&{urllib.parse.quote(url, '')}&{urllib.parse.quote(parameter_string, '')}"
+        signing_key = f"{consumer_secret}&{token_secret}"
+        digest = hmac.new(signing_key.encode(), signature_base_string.encode(), hashlib.sha1).digest()
+        oauth_signature = base64.b64encode(digest).decode()
+        parameters["oauth_signature"] = oauth_signature
+
+        headers = {
+            "Host": host,
+            "Timezone": "Asia/Tokyo",
+            "Os-Security-Patch-Level": "2021-08-05",
+            "Optimize-Body": "true",
+            "Accept": "application/json",
+            "X-Twitter-Client": "TwitterAndroid",
+            "X-Attest-Token": "no_token",
+            "User-Agent": "TwitterAndroid/10.53.2-release.0 (310532000-r-0)",
+            "X-Twitter-Client-Adid": x_twitter_client_adid,
+            #'Accept-Encoding': 'gzip, deflate, br',
+            "X-Twitter-Client-Language": "en-US",
+            "X-Client-Uuid": x_client_uuid,
+            "X-Twitter-Client-Deviceid": x_twitter_client_deviceid,
+            "Authorization": f'OAuth realm="http://api.twitter.com/", ' + ", ".join(f'{urllib.parse.quote(k)}="{urllib.parse.quote(v)}"' for k, v in parameters.items()),
+            "X-Twitter-Client-Version": "10.53.2-release.0",
+            "Cache-Control": "no-store",
+            "X-Twitter-Active-User": "yes",
+            "X-Twitter-Api-Version": "5",
+            "Kdt": kdt,
+            "X-Twitter-Client-Limit-Ad-Tracking": "0",
+            "Accept-Language": "en-US",
+            "X-Twitter-Client-Flavor": "",
+        }
+
+        if http_method == "GET":
+            url += "?"
+            for param in params:
+                url += param + "=" + params[param] + "&"
+            url = url[:-1]
+            response = requests.get(url, headers=headers)
+
+        else:
+            if "graphql" in url:
+                json_bytes = json.dumps(params).encode("utf-8")
+                gzip_buffer = io.BytesIO()
+                with gzip.GzipFile(fileobj=gzip_buffer, mode="wb") as f:
+                    f.write(json_bytes)
+                gzip_data = gzip_buffer.getvalue()
+                post_headers = {
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Content-Encoding": "gzip",
+                    "Content-Type": "application/json",
+                }
+                headers = {**headers, **post_headers}
+                response = requests.post(url, headers=headers, data=gzip_data)
+            else:
+                url += "?"
+                for param in params:
+                    url += f'{param}={params[param]}&'
+                url = url[:-1]
+                post_headers = {"Content-Type": "application/x-www-form-urlencoded"}
+                headers = {**headers, **post_headers}
+                response = requests.post(url, headers=headers)
+
+        return response.json()
+    except:
+        return {"errors": "err"}
+
+
+def create_tweet(text, oauth_token, token_secret, rep_id=None):
+    reply_str = If (rep_id is not None, f',"reply":{{"exclude_reply_user_ids":[],"in_reply_to_tweet_id":{rep_id}}}', "")
+    json_data = {
+        "features": '{"longform_notetweets_inline_media_enabled":true,"super_follow_badge_privacy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"super_follow_user_api_enabled":true,"super_follow_tweet_api_enabled":true,"articles_api_enabled":true,"android_graphql_skip_api_media_color_palette":true,"creator_subscriptions_tweet_preview_api_enabled":true,"freedom_of_speech_not_reach_fetch_enabled":true,"tweetypie_unmention_optimization_enabled":true,"longform_notetweets_consumption_enabled":true,"subscriptions_verification_info_enabled":true,"blue_business_profile_image_shape_enabled":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"immersive_video_status_linkable_timestamps":true,"super_follow_exclusive_tweet_notifications_enabled":true}',
+        "variables": f'{{"nullcast":false,"includeTweetImpression":true,"includeHasBirdwatchNotes":false,"includeEditPerspective":false,"includeEditControl":true,"includeCommunityTweetRelationship":false{reply_str},"includeTweetVisibilityNudge":true,"tweet_text":"{text}"}}',
     }
-    let queryid = get_queryid('"""+graphql_id+"""', '')
-    let url = 'https://x.com/i/api/graphql/' + queryid + '/"""+graphql_id+"""';
-    """
+    return sendAndroid("/graphql/B8zcLvy-DN84y11pB2NObA/CreateTweet", json_data, oauth_token, token_secret, "POST")
 
-def js_setxhr(method = 'POST'):
-    js = """
-    var cookie = document.cookie.replaceAll(" ", "").split(";");
-    var token = "";
-    cookie.forEach(function (value) {
-        let content = value.split('=');
-        if (content[0] == "ct0") token = content[1];
-    })
-    var xhr = new XMLHttpRequest();
-    xhr.open('""" + method + """', url);
-    xhr.setRequestHeader('Authorization', 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA');
-    xhr.setRequestHeader('x-csrf-token', token);
-    xhr.setRequestHeader('x-twitter-active-user', 'yes');
-    xhr.setRequestHeader('x-twitter-auth-type', 'OAuth2Session');
-    xhr.setRequestHeader('x-twitter-client-language', 'ja');
-    xhr.withCredentials = true;
-    """
-    if method == 'POST': js += "xhr.setRequestHeader('Content-Type', 'application/json');"
-    return js
 
-def request_php(url, data = None):
+def create_follow(id, oauth_token, token_secret):
+    payload = {
+        "ext": "mediaRestrictions%2CaltText%2CmediaStats%2CmediaColor%2Cinfo360%2ChighlightedLabel%2CunmentionInfo%2CeditControl%2CpreviousCounts%2ClimitedActionResults%2CsuperFollowMetadata",
+        "send_error_codes": "true",
+        "user_id": id,
+        "handles_challenges": "1",
+    }
+    return sendAndroid("/1.1/friendships/create.json", payload, oauth_token, token_secret, "POST")
+
+
+def get_mentions(oauth_token, token_secret):
+    params = {
+        "earned": "true",
+        "include_ext_is_blue_verified": "true",
+        "include_ext_verified_type": "true",
+        "include_ext_profile_image_shape": "true",
+        "include_ext_is_tweet_translatable": "true",
+        "include_entities": "true",
+        "include_cards": "true",
+        "cards_platform": "Android-12",
+        "include_carousels": "true",
+        "ext": "mediaRestrictions%2CaltText%2CmediaStats%2CmediaColor%2Cinfo360%2ChighlightedLabel%2CunmentionInfo%2CeditControl%2CpreviousCounts%2ClimitedActionResults%2CsuperFollowMetadata",
+        "include_media_features": "true",
+        "include_blocking": "true",
+        "include_blocked_by": "true",
+        "include_quote_count": "true",
+        "include_ext_previous_counts": "true",
+        "include_ext_limited_action_results": "true",
+        "tweet_mode": "extended",
+        "include_composer_source": "true",
+        "include_ext_media_availability": "true",
+        "include_ext_edit_control": "true",
+        "include_reply_count": "true",
+        "include_ext_sensitive_media_warning": "true",
+        "include_ext_views": "true",
+        "simple_quoted_tweet": "true",
+        "include_ext_birdwatch_pivot": "true",
+        "include_user_entities": "true",
+        "include_profile_interstitial_type": "true",
+        "include_ext_professional": "true",
+        "include_viewer_quick_promote_eligibility": "true",
+        "include_ext_has_nft_avatar": "true",
+    }
+    return sendAndroid(
+        "/2/notifications/mentions.json", params, oauth_token, token_secret
+    )
+
+
+def search_timeline(text, oauth_token, token_secret, cursor=None):
+    cursor_param = f"cursor%22%3A%22{cursor}%22%2C%22" if cursor is not None else ""
+    params = {
+        "variables": f'%7B%22{cursor_param}includeTweetImpression%22%3Atrue%2C%22query_source%22%3A%22typed_query%22%2C%22includeHasBirdwatchNotes%22%3Afalse%2C%22includeEditPerspective%22%3Afalse%2C%22includeEditControl%22%3Atrue%2C%22query%22%3A%22{urllib.parse.quote(text)}%22%2C%22timeline_type%22%3A%22Latest%22%7D',
+        "features": "%7B%22longform_notetweets_inline_media_enabled%22%3Atrue%2C%22super_follow_badge_privacy_enabled%22%3Atrue%2C%22longform_notetweets_rich_text_read_enabled%22%3Atrue%2C%22super_follow_user_api_enabled%22%3Atrue%2C%22unified_cards_ad_metadata_container_dynamic_card_content_query_enabled%22%3Atrue%2C%22super_follow_tweet_api_enabled%22%3Atrue%2C%22articles_api_enabled%22%3Atrue%2C%22android_graphql_skip_api_media_color_palette%22%3Atrue%2C%22creator_subscriptions_tweet_preview_api_enabled%22%3Atrue%2C%22freedom_of_speech_not_reach_fetch_enabled%22%3Atrue%2C%22tweetypie_unmention_optimization_enabled%22%3Atrue%2C%22longform_notetweets_consumption_enabled%22%3Atrue%2C%22subscriptions_verification_info_enabled%22%3Atrue%2C%22blue_business_profile_image_shape_enabled%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Atrue%2C%22immersive_video_status_linkable_timestamps%22%3Atrue%2C%22super_follow_exclusive_tweet_notifications_enabled%22%3Atrue%7D",
+    }
+    return sendAndroid("/graphql/4NfkwyiViTLQw7ZcJmxtKg/SearchTimeline", params, oauth_token, token_secret)
+
+
+def search_timeline_web(text, oauth_token, token_secret, cursor=None):
+    cursor_param = f"cursor%22%3A%22{cursor}%22%2C%22" if cursor is not None else ""
+    params = {
+        "variables": f'%7B%22rawQuery%22%3A%22{urllib.parse.quote(text)}%22%2C%22count%22%3A20%2C%22{cursor_param}querySource%22%3A%22typed_query%22%2C%22product%22%3A%22Latest%22%7D',
+        "features": "%7B%22profile_label_improvements_pcf_label_in_post_enabled%22%3Afalse%2C%22rweb_tipjar_consumption_enabled%22%3Atrue%2C%22responsive_web_graphql_exclude_directive_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22creator_subscriptions_tweet_preview_api_enabled%22%3Atrue%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%2C%22responsive_web_graphql_skip_user_profile_image_extensions_enabled%22%3Afalse%2C%22premium_content_api_read_enabled%22%3Afalse%2C%22communities_web_enable_tweet_community_results_fetch%22%3Atrue%2C%22c9s_tweet_anatomy_moderator_badge_enabled%22%3Atrue%2C%22responsive_web_grok_analyze_button_fetch_trends_enabled%22%3Afalse%2C%22articles_preview_enabled%22%3Atrue%2C%22responsive_web_edit_tweet_api_enabled%22%3Atrue%2C%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Atrue%2C%22view_counts_everywhere_api_enabled%22%3Atrue%2C%22longform_notetweets_consumption_enabled%22%3Atrue%2C%22responsive_web_twitter_article_tweet_consumption_enabled%22%3Atrue%2C%22tweet_awards_web_tipping_enabled%22%3Afalse%2C%22creator_subscriptions_quote_tweet_preview_enabled%22%3Afalse%2C%22freedom_of_speech_not_reach_fetch_enabled%22%3Atrue%2C%22standardized_nudges_misinfo%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Atrue%2C%22rweb_video_timestamps_enabled%22%3Atrue%2C%22longform_notetweets_rich_text_read_enabled%22%3Atrue%2C%22longform_notetweets_inline_media_enabled%22%3Atrue%2C%22responsive_web_enhance_cards_enabled%22%3Afalse%7D",
+    }
+    return sendAndroid("/graphql/oyfSj18lHmR7VGC8aM2wpA/SearchTimeline", params, oauth_token, token_secret)
+
+
+def get_user(id, oauth_token, token_secret):
+    params = {
+        "variables": f"%7B%22include_smart_block%22%3Atrue%2C%22includeTweetImpression%22%3Atrue%2C%22include_profile_info%22%3Atrue%2C%22includeTranslatableProfile%22%3Atrue%2C%22includeHasBirdwatchNotes%22%3Afalse%2C%22include_tipjar%22%3Atrue%2C%22includeEditPerspective%22%3Afalse%2C%22include_reply_device_follow%22%3Atrue%2C%22includeEditControl%22%3Atrue%2C%22include_verified_phone_status%22%3Afalse%2C%22rest_id%22%3A%22{id}%22%7D",
+        "features": "%7B%22verified_phone_label_enabled%22%3Afalse%2C%22super_follow_badge_privacy_enabled%22%3Atrue%2C%22subscriptions_verification_info_enabled%22%3Atrue%2C%22super_follow_user_api_enabled%22%3Atrue%2C%22blue_business_profile_image_shape_enabled%22%3Atrue%2C%22immersive_video_status_linkable_timestamps%22%3Atrue%2C%22super_follow_exclusive_tweet_notifications_enabled%22%3Atrue%7D",
+    }
+    return sendAndroid("/graphql/iOA9WG49OYDPdIvJi4K7Yw/UserResultByIdQuery", params, oauth_token, token_secret)
+
+
+def latest_timeline(oauth_token, token_secret, cursor=None):
+    cursor_param = If (cursor is not None, f"cursor%22%3A%22{cursor}%22%2C%22", "")
+    params = {
+        "variables": f"%7B%22{cursor_param}includeTweetImpression%22%3Atrue%2C%22request_context%22%3A%22ptr%22%2C%22includeHasBirdwatchNotes%22%3Afalse%2C%22includeEditPerspective%22%3Afalse%2C%22includeEditControl%22%3Atrue%2C%22count%22%3A100%2C%22includeTweetVisibilityNudge%22%3Atrue%2C%22autoplay_enabled%22%3Atrue%7D",
+        "features": "%7B%22longform_notetweets_inline_media_enabled%22%3Atrue%2C%22super_follow_badge_privacy_enabled%22%3Atrue%2C%22longform_notetweets_rich_text_read_enabled%22%3Atrue%2C%22super_follow_user_api_enabled%22%3Atrue%2C%22unified_cards_ad_metadata_container_dynamic_card_content_query_enabled%22%3Atrue%2C%22super_follow_tweet_api_enabled%22%3Atrue%2C%22articles_api_enabled%22%3Atrue%2C%22android_graphql_skip_api_media_color_palette%22%3Atrue%2C%22creator_subscriptions_tweet_preview_api_enabled%22%3Atrue%2C%22freedom_of_speech_not_reach_fetch_enabled%22%3Atrue%2C%22tweetypie_unmention_optimization_enabled%22%3Atrue%2C%22longform_notetweets_consumption_enabled%22%3Atrue%2C%22subscriptions_verification_info_enabled%22%3Atrue%2C%22blue_business_profile_image_shape_enabled%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Atrue%2C%22immersive_video_status_linkable_timestamps%22%3Atrue%2C%22super_follow_exclusive_tweet_notifications_enabled%22%3Atrue%7D",
+    }
+    return sendAndroid("/graphql/fk-JW3tHUsfC6mBcx0ea3Q/HomeTimelineLatest", params, oauth_token, token_secret)
+
+
+def latest_timeline_web(oauth_token, token_secret, cursor=None):
+    cursor_param = If (cursor is not None, f"cursor%22%3A%22{cursor}%22%2C%22", "")
+    params = {
+        "variables": f"%7B%22count%22%3A20%2C%22{cursor_param}includePromotedContent%22%3Atrue%2C%22latestControlAvailable%22%3Atrue%2C%22seenTweetIds%22%3A%5B%5D%7D",
+        "features": "%7B%22profile_label_improvements_pcf_label_in_post_enabled%22%3Afalse%2C%22rweb_tipjar_consumption_enabled%22%3Atrue%2C%22responsive_web_graphql_exclude_directive_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22creator_subscriptions_tweet_preview_api_enabled%22%3Atrue%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%2C%22responsive_web_graphql_skip_user_profile_image_extensions_enabled%22%3Afalse%2C%22premium_content_api_read_enabled%22%3Afalse%2C%22communities_web_enable_tweet_community_results_fetch%22%3Atrue%2C%22c9s_tweet_anatomy_moderator_badge_enabled%22%3Atrue%2C%22responsive_web_grok_analyze_button_fetch_trends_enabled%22%3Afalse%2C%22articles_preview_enabled%22%3Atrue%2C%22responsive_web_edit_tweet_api_enabled%22%3Atrue%2C%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Atrue%2C%22view_counts_everywhere_api_enabled%22%3Atrue%2C%22longform_notetweets_consumption_enabled%22%3Atrue%2C%22responsive_web_twitter_article_tweet_consumption_enabled%22%3Atrue%2C%22tweet_awards_web_tipping_enabled%22%3Afalse%2C%22creator_subscriptions_quote_tweet_preview_enabled%22%3Afalse%2C%22freedom_of_speech_not_reach_fetch_enabled%22%3Atrue%2C%22standardized_nudges_misinfo%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Atrue%2C%22rweb_video_timestamps_enabled%22%3Atrue%2C%22longform_notetweets_rich_text_read_enabled%22%3Atrue%2C%22longform_notetweets_inline_media_enabled%22%3Atrue%2C%22responsive_web_enhance_cards_enabled%22%3Afalse%7D",
+    }
+    return sendAndroid("/graphql/4U9qlz3wQO8Pw1bRGbeR6A/HomeLatestTimeline", params, oauth_token, token_secret)
+
+
+def request_php(url, data=None):
     for attempt in range(5):
         try:
             if data != None:
-                response = requests.post(PHP_URL + url + '.php', headers={'Content-Type': 'application/json'}, data=json.dumps(data))
+                response = requests.post(PHP_URL + url + ".php", headers={"Content-Type": "application/json"}, data=json.dumps(data))
                 return response
             else:
-                response = requests.get(PHP_URL + url + '.php')
+                response = requests.get(PHP_URL + url + ".php")
                 return response.json()
         except Exception as e:
             print(f"Attempt {attempt + 1} failed: {e}")
@@ -144,254 +256,35 @@ def request_php(url, data = None):
                 return None
 
 
-def prepare_main():
-    """メインのアカウントの準備"""
-
-    def login_twitter(auth_token):
-        """Twitterにログインする"""
-
-        driver.get('https://x.com/i/flow/login')
-        driver.maximize_window()
-        element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.NAME, 'text')))
-        time.sleep(1)
-        cookie = {
-                'name': 'auth_token',
-                'value': auth_token,
-                'domain': '.x.com',
-                'path': '/'
-        }
-        driver.add_cookie(cookie)
-        time.sleep(1)
-        driver.get('https://x.com')
-        element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[role=textbox]')))
-
-    def get_request_body(url, graphql_id):
-        """graphqlのxhr用のbodyを取得する"""
-
-        request_body[graphql_id] = {}
-        driver.get(url)
-        for _ in range(5):
-            time.sleep(5)
-            for request in driver.requests:
-                if request.response:
-                    if graphql_id in request.url and 'graphql' in request.url:
-                        request_body[graphql_id + '_url'] = request.url.split('?')[0]
-                        if request.body != b'':
-                            body = json.loads(request.body)
-                            time.sleep(0.5)
-                            if 'variables' in body:
-                                request_body[graphql_id] = body
-                                break
-                        else:
-                            body = request.params
-                            if 'variables' in body:
-                                for key in body:
-                                    body[key] = json.loads(body[key])
-                                time.sleep(0.5)
-                                request_body[graphql_id] = body
-                                break
-            if request_body[graphql_id] != {}:
-                print('SET ' + graphql_id)
-                time.sleep(1)
-                break
-        else:
-            print('CANNOT SET ' + graphql_id)
-
-    def get_request_body2(url, json_url):
-        """非graphqlのxhr用のbodyを取得する"""
-
-        json_name = json_url.split('.')[0]
-        request_body[json_name] = {}
-        driver.get(url)
-        for _ in range(5):
-            time.sleep(5)
-            for request in driver.requests:
-                if request.response:
-                    if json_url in request.url:
-                        request_body[json_name + '_url'] = request.url.split('?')[0]
-                        if request.body != b'': request_body[json_name] = json.loads(request.body)
-                        else: request_body[json_name] = request.params
-                        print('SET ' + json_name)
-                        break
-            if request_body[json_name] != {}:
-                time.sleep(1)
-                break
-        else:
-            print('CANNOT SET ' + json_name)
-
-    def interceptor(request):
-        """APIのlimitを食うものを阻害"""
-
-        BLOCK_URLS = [
-            "https://x.com/i/api/2/notifications/all.json"
-        ]
-        if any([request.url.find(bloc_url) != -1 for bloc_url in BLOCK_URLS]):
-            request.abort()
-
-    def interceptor2(request):
-        """CreateTweetを盗聴"""
-
-        global request_header
-        BLOCK_URLS = [
-            "CreateTweet"
-        ]
-        if any([request.url.find(bloc_url) != -1 for bloc_url in BLOCK_URLS]):
-            request.abort()
-            request_body['CreateTweet'] = json.loads(request.body)
-            request_body['CreateTweet_url'] = request.url.split('?')[0]
-            request_header = dict(request.headers)
-            if 'x-client-transaction-id' in request_header: del request_header['x-client-transaction-id']
-            if 'Accept-Encoding' in request_header: del request_header['Accept-Encoding']
-            driver.request_interceptor = interceptor
-            print('SET CreateTweet')
-
-    def get_tweet_request_body():
-        """ツイートのxhr用のbodyを取得する"""
-
-        driver.get('https://x.com/home')
-        element = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[role=textbox]')))
-        time.sleep(1)
-        element_box = driver.find_element(By.CSS_SELECTOR, '[role=textbox]')
-        element_box.send_keys('working')
-        driver.request_interceptor = interceptor2
-        time.sleep(2)
-        driver.find_element(By.CSS_SELECTOR, '[data-testid=tweetButtonInline]').click()
-
-    for _ in range(5):
-        try:
-            driver.request_interceptor = interceptor
-            get_request_body('https://x.com/user/status/1', 'TweetResultByRestId')
-            login_twitter(main_account[3])
-            get_request_body('https://x.com/home', 'Timeline')
-            get_request_body('https://x.com/intent/user?user_id=1', 'UserByRestId')
-            get_request_body2('https://x.com/notifications/mentions', 'mentions.json')
-            get_request_body('https://x.com/search?q=' + KEYWORD + '&src=typed_query&f=live', 'SearchTimeline')
-            get_tweet_request_body()
-        except Exception as e:
-            traceback.print_exc()
-            time.sleep(2)
-        else:
-            break
+def tweet_by_oauth(payload):
+    print("tweet at ", datetime.datetime.now())
+    tweet_response = oauth1.post("https://api.twitter.com/2/tweets", json=payload, headers={"Content-Type": "application/json"})
 
 
-def create_tweet(text, oauth_token, token_secret, rep_id = None):
-    """Androidクライアントでのツイート"""
-
-    url = 'https://api.twitter.com/graphql/B8zcLvy-DN84y11pB2NObA/CreateTweet'
-    oauth_nonce = ''.join([str(random.randint(0, 9)) for _ in range(32)])
-    oauth_timestamp = str(int(time.time()))
-
-    http_method = "POST"
-    parameters = {
-        "oauth_consumer_key": consumer_key,
-        "oauth_token": oauth_token,
-        "oauth_signature_method": "HMAC-SHA1",
-        "oauth_timestamp": oauth_timestamp,
-        "oauth_nonce": oauth_nonce,
-        "oauth_version": "1.0"
-    }
-
-    parameter_string = '&'.join(f"{urllib.parse.quote(k, '')}={urllib.parse.quote(v, '')}" for k, v in sorted(parameters.items()))
-    signature_base_string = f"{http_method}&{urllib.parse.quote(url, '')}&{urllib.parse.quote(parameter_string, '')}"
-    signing_key = f"{consumer_secret}&{token_secret}"
-    digest = hmac.new(signing_key.encode(), signature_base_string.encode(), hashlib.sha1).digest()
-    oauth_signature = base64.b64encode(digest).decode()
-    parameters['oauth_signature'] = oauth_signature
-
-    reply_str = f',"reply":{{"exclude_reply_user_ids":[],"in_reply_to_tweet_id":{rep_id}}}' if rep_id is not None else ''
-    json_data = {
-        'features': '{"longform_notetweets_inline_media_enabled":true,"super_follow_badge_privacy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"super_follow_user_api_enabled":true,"super_follow_tweet_api_enabled":true,"articles_api_enabled":true,"android_graphql_skip_api_media_color_palette":true,"creator_subscriptions_tweet_preview_api_enabled":true,"freedom_of_speech_not_reach_fetch_enabled":true,"tweetypie_unmention_optimization_enabled":true,"longform_notetweets_consumption_enabled":true,"subscriptions_verification_info_enabled":true,"blue_business_profile_image_shape_enabled":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"immersive_video_status_linkable_timestamps":true,"super_follow_exclusive_tweet_notifications_enabled":true}',
-        'variables': '{"nullcast":false,"includeTweetImpression":true,"includeHasBirdwatchNotes":false,"includeEditPerspective":false,"includeEditControl":true,"includeCommunityTweetRelationship":false' + reply_str + ',"includeTweetVisibilityNudge":true,"tweet_text":"' + text + '"}'
-    }
-    json_bytes = json.dumps(json_data).encode('utf-8')
-    gzip_buffer = io.BytesIO()
-    with gzip.GzipFile(fileobj=gzip_buffer, mode='wb') as f:
-        f.write(json_bytes)
-    gzip_data = gzip_buffer.getvalue()
-
-    post_headers = {
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Authorization': 'OAuth realm="http://api.twitter.com/", ' + ', '.join(f'{urllib.parse.quote(k)}="{urllib.parse.quote(v)}"' for k, v in parameters.items()),
-        'Content-Encoding': 'gzip',
-        'Content-Type': 'application/json',
-        'Content-Length': str(len(gzip_data))
-    }
-    headers = {**android_headers, **post_headers}
-    response = requests.post(url, headers=headers, data=gzip_data)
-    return response
-
-def search_timeline(text, oauth_token, token_secret, cursor = None):
-    """Androidクライアントでの検索"""
-
-    url = 'https://api.twitter.com/graphql/4NfkwyiViTLQw7ZcJmxtKg/SearchTimeline'
-    oauth_nonce = ''.join([str(random.randint(0, 9)) for _ in range(32)])
-    oauth_timestamp = str(int(time.time()))
-    cursor_param = f'cursor%22%3A%22{cursor}%22%2C%22' if cursor is not None else ''
-
-    http_method = "GET"
-    parameters = {
-        "oauth_consumer_key": consumer_key,
-        "oauth_token": oauth_token,
-        "oauth_signature_method": "HMAC-SHA1",
-        "oauth_timestamp": oauth_timestamp,
-        "oauth_nonce": oauth_nonce,
-        "oauth_version": "1.0",
-        'variables': "%7B%22" + cursor_param + "includeTweetImpression%22%3Atrue%2C%22query_source%22%3A%22typed_query%22%2C%22includeHasBirdwatchNotes%22%3Afalse%2C%22includeEditPerspective%22%3Afalse%2C%22includeEditControl%22%3Atrue%2C%22query%22%3A%22" + urllib.parse.quote(text) + "%22%2C%22timeline_type%22%3A%22Latest%22%7D",
-        'features': "%7B%22longform_notetweets_inline_media_enabled%22%3Atrue%2C%22super_follow_badge_privacy_enabled%22%3Atrue%2C%22longform_notetweets_rich_text_read_enabled%22%3Atrue%2C%22super_follow_user_api_enabled%22%3Atrue%2C%22unified_cards_ad_metadata_container_dynamic_card_content_query_enabled%22%3Atrue%2C%22super_follow_tweet_api_enabled%22%3Atrue%2C%22articles_api_enabled%22%3Atrue%2C%22android_graphql_skip_api_media_color_palette%22%3Atrue%2C%22creator_subscriptions_tweet_preview_api_enabled%22%3Atrue%2C%22freedom_of_speech_not_reach_fetch_enabled%22%3Atrue%2C%22tweetypie_unmention_optimization_enabled%22%3Atrue%2C%22longform_notetweets_consumption_enabled%22%3Atrue%2C%22subscriptions_verification_info_enabled%22%3Atrue%2C%22blue_business_profile_image_shape_enabled%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Atrue%2C%22immersive_video_status_linkable_timestamps%22%3Atrue%2C%22super_follow_exclusive_tweet_notifications_enabled%22%3Atrue%7D"
-    }
-
-    parameter_string = '&'.join(f"{k}={v}" for k, v in sorted(parameters.items()))
-    signature_base_string = f"{http_method}&{urllib.parse.quote(url, '')}&{urllib.parse.quote(parameter_string, '')}"
-    signing_key = f"{consumer_secret}&{token_secret}"
-
-    digest = hmac.new(signing_key.encode(), signature_base_string.encode(), hashlib.sha1).digest()
-    oauth_signature = base64.b64encode(digest).decode()
-    parameters['oauth_signature'] = oauth_signature
-
-    url += '?variables=' + parameters['variables'] +'&features=' + parameters['features']
-    del parameters['variables']
-    del parameters['features']
-    headers = {**android_headers, **{'Authorization': 'OAuth realm="http://api.twitter.com/", ' + ', '.join(f'{urllib.parse.quote(k)}="{urllib.parse.quote(v)}"' for k, v in parameters.items())}}
-    response = requests.get(url, headers=headers)
-    return response
-
-def tweet_from_main(payload):
-    """メインアカウントでのツイート"""
-
-    print('tweet at ', datetime.datetime.now())
-    tweet_response = oauth1.post('https://api.twitter.com/2/tweets', json=payload, headers={'Content-Type': 'application/json'})
-
-twcount = 0 #返信用アカウント振り分け用カウンター
+twcount = 0  # 返信用アカウント振り分け用カウンター
 
 def reply(text, rep_id):
-    """ツイート（サブ垢）"""
-
     global twcount
     twcount += 1
     index = twcount % (len(rep_accounts) + 1)
     if index == len(rep_accounts):
-        print('reply ' + main_account[0] + ' at ', datetime.datetime.now())
+        print(f"reply {main_account[0]} at ", datetime.datetime.now())
         response = create_tweet(text, main_account[1], main_account[2], rep_id)
-        response_json = response.json()
-        if response.status_code != 200 or 'errors' in response_json:
-            print(response_json)
+        if "errors" in response:
+            print(response)
     else:
-        print('reply ' + rep_accounts[index][0] + ' at ', datetime.datetime.now())
+        print(f"reply {rep_accounts[index][0]} at ", datetime.datetime.now())
         response = create_tweet(text, rep_accounts[index][1], rep_accounts[index][2], rep_id)
-        response_json = response.json()
-        if response.status_code != 200 or 'errors' in response_json:
-            print(response_json)
-            if 'errors' in response_json:
-                response = create_tweet(text, main_account[1], main_account[2], rep_id)
-                response_json = response.json()
-                if response.status_code != 200 or 'errors' in response_json:
-                    print(response_json)
+        if "errors" in response:
+            print(response)
+            response = create_tweet(text, main_account[1], main_account[2], rep_id)
+            if "errors" in response:
+                print(response)
 
 
-idlist = [] #返信済みのツイートID
+idlist = []  # 返信済みのツイートID
 
 def receive(reps):
-    """メンションを受け取ったとき"""
 
     def get_kyui(pt):
         if pt < 500: rank = 'E'
@@ -417,306 +310,186 @@ def receive(reps):
         return rank
 
     def get_rank(key, name):
-        """ランク返信文章生成"""
+        def s(key):
+            return f"{round(d[key], 2):.2f}"
 
-        if prepare_flag: return 'ランキングは準備中です\\nしばらくお待ちください'
+        if prepare_flag:
+            return "ランキングは準備中です\\nしばらくお待ちください"
         if key in records_rank:
             d = records_rank[key]
-            def s(key): return f"{round(d[key], 2):.2f}"
-            rep_text2 = '\\n参考記録: ' + s('refer_pt') if d['now_pt'] != d['refer_pt'] else ''
-            rank, rank2 = get_kyui(d['max_pt']), get_kyui(d['now_pt'])
-            return name + f"\\n\\n級位: {rank}\\n　最高pt: {s('max_pt')}\\n　歴代: {d['max_pt_rank']} / {str(joined_num['max_pt_rank'])}\\n　現在pt: {s('now_pt')} ({rank2}帯)\\n　世界ランク: {d['now_pt_rank']} / {str(joined_num['now_pt_rank'])}{rep_text2}\\n1s以内出場数: {str(d['count'])}\\n自己ベスト: {d['best']} ({str(d['best_count'])}回)\\n戦績: 🥇×{str(d['f'])} 🥈×{str(d['s'])} 🥉×{str(d['t'])} 📋×{str(d['rankin'])}"
-        return name + f"\\n\\n最高pt: -\\n歴代: - / {str(joined_num['max_pt_rank'])}\\n現在pt: -\\n世界ランク: - / {str(joined_num['now_pt_rank'])}\\n1s以内出場数: 0\\n自己ベスト: -\\n戦績: 🥇×0 🥈×0 🥉×0 📋×0"
+            rep_text2 = If (d["now_pt"] != d["refer_pt"], f'\\n参考記録: {s("refer_pt")}', "")
+            rank, rank2 = get_kyui(d["max_pt"]), get_kyui(d["now_pt"])
+            return f"{name}\\n\\n級位: {rank}\\n　最高pt: {s('max_pt')}\\n　歴代: {d['max_pt_rank']} / {str(joined_num['max_pt_rank'])}\\n　現在pt: {s('now_pt')} ({rank2}帯)\\n　世界ランク: {d['now_pt_rank']} / {str(joined_num['now_pt_rank'])}{rep_text2}\\n1s以内出場数: {str(d['count'])}\\n自己ベスト: {d['best']} ({str(d['best_count'])}回)\\n戦績: 🥇×{str(d['f'])} 🥈×{str(d['s'])} 🥉×{str(d['t'])} 📋×{str(d['rankin'])}"
+        return f"{name}\\n\\n最高pt: -\\n歴代: - / {str(joined_num['max_pt_rank'])}\\n現在pt: -\\n世界ランク: - / {str(joined_num['now_pt_rank'])}\\n1s以内出場数: 0\\n自己ベスト: -\\n戦績: 🥇×0 🥈×0 🥉×0 📋×0"
 
     def has_rank(key, name, data):
         """ランクを要求しているか判定"""
         """return ランク返信文章 or False"""
 
-        text = data['full_text'].lower()
-        mentions = data['entities']['user_mentions']
-        for user in mentions: text = text.replace('@' + user['screen_name'].lower(), '')
-        if any(x in text for x in ['ランク', 'ﾗﾝｸ', 'らんく', 'rank', 'ランキング', 'ﾗﾝｷﾝｸﾞ']): return get_rank(key, name)
+        text = data["full_text"].lower()
+        mentions = data["entities"]["user_mentions"]
+        for user in mentions:
+            text = text.replace("@" + user["screen_name"].lower(), "")
+        if any(x in text for x in ["ランク", "ﾗﾝｸ", "らんく", "rank", "ランキング", "ﾗﾝｷﾝｸﾞ"]):
+            return get_rank(key, name)
+        if any(x in text for x in ["順位", "じゅんい", "ジュンイ", "ｼﾞｭﾝｲ"]):
+            return get_result(key, name)
         return False
 
     def get_result(key, name):
         """当日の結果返信文章生成"""
 
-        previous = datetime.datetime.now() - datetime.timedelta(hours=3, minutes=33)
-        if prepare_flag: return 'ランキングは準備中です\\nしばらくお待ちください'
-        if key in today_result: return name + f"\\n\\n{previous.date().strftime('%Y/%m/%d')}の334結果\\nresult: +{today_result[key][1]} [sec]\\nrank: {str(today_result[key][0])} / {str(today_joined)}"
-        return name + f"\\n\\n{previous.date().strftime('%Y/%m/%d')}の334結果\\nresult: DQ\\nrank: DQ / {str(today_joined)}"
+        previous = datetime.datetime.now() - datetime.timedelta(hours=TIME334[0], minutes=TIME334[1] - 1)
+        if prepare_flag:
+            return "ランキングは準備中です\\nしばらくお待ちください"
+        if key in today_result:
+            return f"{name}\\n\\n{previous.date().strftime('%Y/%m/%d')}の334結果\\nresult: +{today_result[key][1]} [sec]\\nrank: {str(today_result[key][0])} / {str(today_joined)}"
+        return f"{name}\\n\\n{previous.date().strftime('%Y/%m/%d')}の334結果\\nresult: DQ\\nrank: DQ / {str(today_joined)}"
 
-    follow_queue_ids = [] #フォロー待ちのユーザーID
-
-    def following(id):
-        """フォローする"""
-
-        nonlocal follow_queue_ids
-        driver.execute_script("""
-        if (window.following === undefined) window.following = {};
-        var id = arguments[0];
-        window.following[id] = "";
-        var url = "https://x.com/i/api/1.1/friendships/create_all.json?user_id=" + id;
-        """ + js_setxhr() + """
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) window.following[id] = true;
-                else window.followed[id] = false;
-            }
-        }
-        xhr.send();
-        """, id)
-        while True:
-            time.sleep(0.1)
-            res = driver.execute_script('return window.following["' + id + '"]')
-            if res != '':
-                driver.execute_script('window.following["' + id + '"] = ""')
-                follow_queue_ids.remove(id)
-                return res
-
-    def follow_request(data, mentions = []):
+    def follow_request(data, mentions=[]):
         """フォローリクエスト"""
         """return フォローした or ランク返信文章 or False"""
 
-        nonlocal follow_queue_ids
-        user = data['user']
-        user_id = user['id_str']
-        text = data['full_text'].lower()
+        user = data["user"]
+        user_id = user["id_str"]
+        text = data["full_text"].lower()
         for mention in mentions:
-            text = text.replace('@' + mention['screen_name'].lower(), '')
-        if any(x in text for x in ['ふぉろー', 'フォロー', 'follow', 'ふぉろば', 'フォロバ']):
-            if any(x in text for x in ['してもいいですか', 'しても大丈夫ですか']): return False
-            if 'following' in user and user['following']: return '既にフォローしています'
-            else:
-                print('フォロー : ' + user['name'] + '  @' + user['screen_name'])
-                if user_id in follow_queue_ids: return False
-                follow_queue_ids.append(user_id)
-
-                driver.execute_script("""
-                if (window.followed === undefined) window.followed = {};
-                var id = arguments[2];
-                window.followed[id] = "";
-                var data = arguments[0];
-                data.variables.userId = id;
-                var url2 = arguments[1].split("?")[0];
-                var url = url2 + "?" + Object.entries(data).map((e) => { return `${e[0].replaceAll("%22", "")}=${encodeURIComponent(JSON.stringify(e[1]))}` }).join("&");
-                """ + js_setxhr('GET') + """
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState == 4) {
-                        if (xhr.status == 200) {
-                            try {
-                                out = JSON.parse(xhr.responseText);
-                                if ("followed_by" in out.data.user.result.legacy) {
-                                    if (out.data.user.result.legacy.followed_by) window.followed[id] = 1;
-                                    else window.followed[id] = 2;
-                                } else window.followed[id] = 2;
-                            } catch (e) {
-                                console.error(e);
-                                window.followed[id] = 3;
-                            }
-                        } else window.followed[id] = 3;
-                    }
-                }
-                xhr.send();
-                """, request_body['UserByRestId'], request_body['UserByRestId_url'], user_id)
-                while True:
-                    time.sleep(0.1)
-                    res = driver.execute_script('return window.followed["' + user_id + '"]')
-                    if res != '':
-                        driver.execute_script('window.followed["' + user_id + '"] = ""')
-                        if res == 1:
-                            if following(user_id): return 'フォローしました'
-                            else: return 'エラーが発生しました🙇\\n時間をおいてもう一度お試しください'
-                        else:
-                            follow_queue_ids.remove(user_id)
-                            if res == 2: return '334Rankerをフォローしてからお試しください'
-                            return 'エラーが発生しました🙇\\n時間をおいてもう一度お試しください'
-
-        else: return has_rank(user_id, '@ ' + user['screen_name'], data)
+            text = text.replace("@" + mention["screen_name"].lower(), "")
+        if any(x in text for x in ["ふぉろー", "フォロー", "follow", "ふぉろば", "フォロバ"]):
+            if any(x in text for x in ["してもいいですか", "しても大丈夫ですか"]):
+                return False
+            try:
+                legacy = user
+                if "following" not in legacy and "followed_by" not in legacy:
+                    user_data = get_user(user_id, main_account[1], main_account[2])
+                    legacy = user_data["data"]["user_result"]["result"]["legacy"]
+                if "following" in legacy and legacy["following"]:
+                    return "既にフォローしています"
+                if "followed_by" in legacy and legacy["followed_by"]:
+                    response = create_follow(user_id, main_account[1], main_account[2])
+                    if "errors" in response:
+                        return 'エラーが発生しました🙇\\n時間をおいてもう一度お試しください'
+                    return "フォローしました"
+                else:
+                    return "334Rankerをフォローしてからお試しください"
+            except Exception as e:
+                traceback.print_exc()
+                return 'エラーが発生しました🙇\\n時間をおいてもう一度お試しください'
+        else:
+            return has_rank(user_id, "@ " + user["screen_name"], data)
+        
+    def tweet_time(id_str):
+        d = TweetIdTime(int(id_str))
+        return f"ツイート時刻：{d.hour:02d}:{d.minute:02d}:{d.second:02d}.{int(d.microsecond / 1000):03d}"
 
 
+    # follow_request -> has_rank -> get_rank -> get_result -> (tweet_time)
     global idlist
-    rep_accounts_ids = [main_account[1].split('-')[0]] + [account[1].split('-')[0] for account in rep_accounts]
-    for rep in reps:
-        data = rep['status']['data']
-        user = data['user']
-        mentions = data['entities']['user_mentions']
-        if user['id_str'] not in rep_accounts_ids and data['id_str'] not in idlist:
+    rep_accounts_ids = [main_account[1].split("-")[0]] + [account[1].split("-")[0] for account in rep_accounts]
+    for data in reps:
+        user = data["user"]
+        mentions = data["entities"]["user_mentions"]
+        if user["id_str"] not in rep_accounts_ids and data["id_str"] not in idlist:
             rep_text = False
-            idlist.append(data['id_str'])
-            if 'in_reply_to_status_id_str' not in data or data['in_reply_to_status_id_str'] == None:
-                rep_text = follow_request(data, mentions) #リプライ先がリプライでない場合
-                if not rep_text: rep_text = get_result(user['id_str'], user['screen_name'])
-            else: #リプライ先がリプライの場合
-                if data['in_reply_to_user_id_str'] in rep_accounts_ids: rep_text = follow_request(data, mentions) #Rankerへのリプライの場合
-                else: #Ranker以外へのリプライの場合
-                    user_id = data['in_reply_to_user_id_str']
-                    user_name = ''
-                    text_range = data['display_text_range']
-                    flag = False 
+            idlist.append(data["id_str"])
+            if "in_reply_to_status_id_str" not in data or data["in_reply_to_status_id_str"] == None:
+                rep_text = follow_request(data, mentions)  # リプライ先がリプライでない場合 検索にかかったもの全て対象
+                if not rep_text:
+                    rep_text = tweet_time(data["id_str"])
+            else:  # リプライ先がリプライの場合
+                if data["in_reply_to_user_id_str"] in rep_accounts_ids:
+                    rep_text = follow_request(data, mentions)  # Rankerへのリプライの場合
+                else:  # Ranker以外へのリプライの場合
+                    user_id = data["in_reply_to_user_id_str"]
+                    text_range = data["display_text_range"]
+                    flag = False
                     for user2 in mentions:
-                        if user2["id_str"] in rep_accounts_ids and text_range[0] <= user2["indices"][0] and user2["indices"][1] <= text_range[1]: flag = True
-                        if user2["id_str"] == user_id: user_name = user2["name"]
+                        if user2["id_str"] in rep_accounts_ids and text_range[0] <= user2["indices"][0] and user2["indices"][1] <= text_range[1]:
+                            flag = True
                     if flag:
-                        if user_name == '':
-                            if user_id == user['id_str']: user_name = '@ ' + data['in_reply_to_screen_name']
-                            if user_name == '': user_name = '@ ' + data['in_reply_to_screen_name']
+                        user_name = "@ " + data["in_reply_to_screen_name"]
                         rep_text = has_rank(user_id, user_name, data)
                         if not rep_text:
-                            d = TweetIdTime(int(data['in_reply_to_status_id_str']))
-                            rep_text = "ツイート時刻：" + f'{d.hour:02d}:{d.minute:02d}:{d.second:02d}.{int(d.microsecond / 1000):03d}'
-            if rep_text:
-                print(user['name'])
-                threading.Thread(target=reply, args=(rep_text, data['id_str'],)).start()
+                            rep_text = tweet_time(data["in_reply_to_status_id_str"])
 
+            if rep_text:
+                print(user["name"])
+                threading.Thread(target=reply, args=(rep_text, data["id_str"],)).start()
 
 
 def get_mention_from_notion(since, end):
     """通知欄からメンションを取得"""
 
-    screen_names = [main_account[0]] + [account[0] for account in rep_accounts]
+    def loop():
+        screen_names = [main_account[0]] + [account[0] for account in rep_accounts]
+        data = get_mentions(main_account[1], main_account[2])
+        tweets = data["globalObjects"]["tweets"]
+        users = data["globalObjects"]["users"]
+        out = []
+        for key in tweets:
+            tweet = tweets[key]
+            if all(str not in tweet['full_text'].lower() for str in screen_names): continue
+            if since <= TweetIdTime(int(tweet['id_str'])) < end:
+                tweet["user"] = users[tweet["user_id_str"]]
+                out.append(tweet)
+        receive(out)
 
-    while True:
-        if since < datetime.datetime.now():
-            driver.execute_script("""
-var cookie = document.cookie.replaceAll(" ", "").split(";");
-var token = "";
-cookie.forEach(function (value) {
-    let content = value.split('=');
-    if (content[0] == "ct0") token = content[1];
-});
-function setheader(xhr) {
-    xhr.setRequestHeader('Authorization', 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA');
-    xhr.setRequestHeader('x-csrf-token', token);
-    xhr.setRequestHeader('x-twitter-active-user', 'yes');
-    xhr.setRequestHeader('x-twitter-auth-type', 'OAuth2Session');
-    xhr.setRequestHeader('x-twitter-client-language', 'ja');
-    xhr.withCredentials = true;
-}
-window.adaptive = [];
-let from = new Date(arguments[0] * 1000),
-    until = new Date(arguments[1] * 1000),
-    screen_names = arguments[4],
-    refresh = "",
-    param = "?" + Object.entries(arguments[3]).map((e) => { return `${e[0]}=${encodeURIComponent(JSON.stringify(e[1]))}` }).join("&").replaceAll("%22", ""),
-    not = setInterval(function (arguments) {
-        if (until < new Date()) clearInterval(not);
-        get_notifications("&cursor=" + refresh, arguments);
-    }, 5000, arguments);
-function get_notifications(cursor, arguments) {
-    try {
-        let xhr = new XMLHttpRequest();
-        let url = arguments[2].split("?")[0] + param + cursor;
-        xhr.open('GET', url);
-        get_tweets(cursor, xhr);
-    } catch(e) {
-        console.error("err at mention: ", error.message);
-    }
-}
-function get_tweets(cursor, xhr) {
-    setheader(xhr);
-    xhr.send();
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            let res = JSON.parse(xhr.responseText);
-            let tweets = res.globalObjects.tweets;
-            let users = res.globalObjects.users;
-            let timelines = res.timeline.instructions;
-            let timeline = [];
-            for (let j = 0; j < timelines.length; j++) {
-                if ("addEntries" in timelines[j]) timeline = timeline.concat(timelines[j].addEntries.entries);
-                else if ("replaceEntry" in timelines[j]) timeline.push(timelines[j].replaceEntry.entry);
-            }
-            for (let i = 0; i < timeline.length; i++) {
-                try {
-                    if (!timeline[i].entryId.includes("cursor")) {
-                        let id = timeline[i].content.item.content.tweet.id;
-                        let tweet = tweets[id];
-                        if (screen_names.every(str => !tweet.full_text.toLowerCase().includes(str))) continue;
-                        if (new Date(tweet.created_at) < from) continue;
-                        if (until <= new Date(tweet.created_at)) {
-                            clearInterval(not);
-                            continue;
-                        }
-                        tweet["user"] = users[tweet.user_id_str];
-                        let status = {
-                            "status": {
-                                "data": tweet
-                            }
-                        }
-                        window.adaptive.push(status);
-                    }
-                    else if (timeline[i].entryId.includes("top")) refresh = timeline[i].content.operation.cursor.value;
-                } catch { }
-            }
-        }
-    }
-}
-""", int(since.timestamp()), int(end.timestamp()), request_body['mentions_url'], request_body['mentions'], screen_names)
-            while True:
-                time.sleep(0.01)
-                out = driver.execute_script("""
-    let adaptive = JSON.parse(JSON.stringify(window.adaptive));
-    window.adaptive = [];
-    return adaptive;
-                """)
-                if out != []:
-                    threading.Thread(target=receive, args=(out,)).start()
-                else:
-                    if end + datetime.timedelta(seconds=20) < datetime.datetime.now():
-                        print_log()
-                        break
-            break
-        time.sleep(0.01)
+    while datetime.datetime.now() < since: time.sleep(0.01)
+    counter = 0
+    while datetime.datetime.now() <= end:
+        start = since + datetime.timedelta(seconds = counter * 5)
+        while datetime.datetime.now() < start: time.sleep(0.01)
+        threading.Thread(target=loop).start()
+        counter += 1
 
-def get_mention_from_search(start, end, counter = 1):
+
+def get_mention_from_search(since, end):
     """検索からメンションを取得"""
 
-    index = counter % len(search_accounts)
-    until = start + datetime.timedelta(seconds = counter)
-    def convert(data):
-        instructions = data['data']['search']['timeline_response']['timeline']['instructions']
-        screen_names = [f'@{main_account[0]}'] + [f'@{account[0]}' for account in rep_accounts]
+    def loop(text, index):
+        oauth_token, token_secret = search_accounts[index]
+        data = search_timeline(text, oauth_token, token_secret)
+        if "errors" in data:
+            print(datetime.datetime.now(), f"Search Error occurred at index {index}", data)
+            return
+        instructions = data["data"]["search"]["timeline_response"]["timeline"]["instructions"]
+        screen_names = [f"@{main_account[0]}"] + [f"@{account[0]}" for account in rep_accounts]
         out = []
         for instruction in instructions:
-            if 'entries' in instruction: entries = instruction['entries']
-            elif 'entry' in instruction: entries = [instruction['entry']]
-            else: continue
+            if "entries" in instruction:
+                entries = instruction["entries"]
+            elif "entry" in instruction:
+                entries = [instruction["entry"]]
+            else:
+                continue
             for entry in entries:
-                if 'promoted' in entry['entryId'] or 'cursor' in entry['entryId']: continue
+                if "promoted" in entry["entryId"] or "cursor" in entry["entryId"]:
+                    continue
                 try:
-                    res = entry['content']['content']['tweetResult']['result']
-                    if 'tweet' in res:
-                        res = res['tweet']
-                    legacy = res['legacy']
-                    legacy['id_str'] = res['rest_id']
-                    if start <= TweetIdTime(int(legacy['id_str'])) <= end:
-                        if not any(element in legacy['full_text'].lower() for element in screen_names): continue
-                        legacy['user'] = res['core']['user_result']['result']['legacy']
-                        out.append({'status': {'data': legacy}})
+                    res = entry["content"]["content"]["tweetResult"]["result"]
+                    if "tweet" in res:
+                        res = res["tweet"]
+                    legacy = res["legacy"]
+                    legacy["id_str"] = res["rest_id"]
+                    if start <= TweetIdTime(int(legacy["id_str"])) <= end:
+                        if not any(element in legacy["full_text"].lower() for element in screen_names): continue
+                        legacy["user"] = res["core"]["user_result"]["result"]["legacy"]
+                        out.append(legacy)
                 except Exception as e:
                     traceback.print_exc()
         receive(out)
 
-    while True:
-        if until < datetime.datetime.now():
-            if until + datetime.timedelta(seconds = 1) <= end:
-                threading.Thread(target=get_mention_from_search, args=(start, end, counter + 1,)).start()
 
-            text = f'@{main_account[0]} -filter:retweets -from:{main_account[0]} ' + ' '.join([f'-from:{account[0]}' for account in rep_accounts])
-            response = search_timeline(text, search_accounts[index][0], search_accounts[index][1])
-            try:
-                response_json = response.json()
-                if 'data' in response_json:
-                    convert(response_json)
-                else:
-                    print(datetime.datetime.now(), f'Search Error occurred at index {index} : {response_json}')
-            except:
-                print(datetime.datetime.now(), f'Search Error occurred at index {index}', response)
-
-            break
-        time.sleep(0.01)
-
+    text = f'@{main_account[0]} -filter:retweets -from:{main_account[0]} ' + " ".join([f"-from:{account[0]}" for account in rep_accounts])
+    while datetime.datetime.now() < since: time.sleep(0.01)
+    counter = 0
+    rate = max(1, 15 * 60 / len(search_accounts) / 50)
+    while datetime.datetime.now() <= end:
+        start = since + datetime.timedelta(seconds = counter * rate)
+        index = counter % len(search_accounts)
+        while datetime.datetime.now() < start: time.sleep(0.01)
+        threading.Thread(target=loop, args=(text, index,)).start()
+        counter += 1
 
 
 def make_world_rank():
@@ -783,7 +556,6 @@ def make_world_rank():
     sort_and_rank('now_pt', 'now_pt_rank', records_rank)
 
 
-
 def make_ranking(results_dict_arr, _driver):
     """当日分のランキングの作成"""
 
@@ -821,14 +593,15 @@ def make_ranking(results_dict_arr, _driver):
             index += 1
             if index > 30: break
             if value[1] != previous_value: current_rank = index
-            params = copy.deepcopy(request_body['UserByRestId'])
-            params['variables']['userId'] = value[0]
-            for key in params:
-                params[key] = json.dumps(params[key])
+            url = "https://api.x.com/graphql/LWxkCeL8Hlx0-f24DmPAJw/UserByRestId"
+            params = {
+                "variables": f'{{"userId":"{value[0]}"}}',
+                "features": '{"hidden_profile_subscriptions_enabled":true,"profile_label_improvements_pcf_label_in_post_enabled":false,"rweb_tipjar_consumption_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"highlights_tweets_tab_ui_enabled":true,"responsive_web_twitter_article_notes_tab_enabled":true,"subscriptions_feature_can_gift_premium":true,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"responsive_web_graphql_timeline_navigation_enabled":true}'
+            }
             counter = Counter(month_source[value[0]])
             headers = { "authorization": "Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA" }
             try:
-                response = requests.get(request_body['UserByRestId_url'].replace('x.com/i/api', 'api.x.com'), params=params, headers=headers)
+                response = requests.get(url, params=params, headers=headers)
                 legacy = response.json()['data']['user']['result']['legacy']
                 name = legacy['name']
                 if name == '': name = '@' + legacy['screen_name']
@@ -861,7 +634,7 @@ def make_ranking(results_dict_arr, _driver):
                     }
                 }
                 print("POST RANK2 :")
-                tweet_from_main(payload)
+                tweet_by_oauth(payload)
                 _driver.quit()
                 break
 
@@ -872,7 +645,7 @@ def make_ranking(results_dict_arr, _driver):
             'text': "Today's winner https://x.com/" + screen_name + "/status/" + id
         }
         print("RETWEET :")
-        tweet_from_main(payload)
+        tweet_by_oauth(payload)
 
     def make_img(tweets):
         """ランキング画像の生成とアップロード"""
@@ -898,7 +671,7 @@ def make_ranking(results_dict_arr, _driver):
                     }
                 }
                 print("POST RANK :")
-                tweet_from_main(payload)
+                tweet_by_oauth(payload)
 
                 next_day = datetime.datetime.now() + datetime.timedelta(days=1)
                 if next_day.day == 1:
@@ -909,7 +682,7 @@ def make_ranking(results_dict_arr, _driver):
                 else:
                     _driver.quit()
                 break
-    
+
     tweet_from_id_gt = ''
 
     def tweet_from_id(tweet_id):
@@ -1029,342 +802,192 @@ def make_ranking(results_dict_arr, _driver):
     prepare_flag2 = False
 
 
-
-def get334(_driver):
-
-    get334_from_sub_arr = ''
+def get334(oauth_token, token_secret, search_only, func):
     now = datetime.datetime.now()
     time1 = datetime.datetime(now.year, now.month, now.day, TIME334[0], TIME334[1], 59) - datetime.timedelta(minutes=1)
     time2 = datetime.datetime(now.year, now.month, now.day, TIME334[0], TIME334[1], 1)
-    screen_names = f'-from:{main_account[0]} ' + ' '.join([f'-from:{account[0]}' for account in rep_accounts])
     out = []
+    out2 = []
+    end_flag = True
 
-    def get334_from_sub(cursor):
-
-        def final(arr):
-            nonlocal get334_from_sub_arr
-            print('GET334 FROM SUB ACCOUNT')
-            get334_from_sub_arr = arr
-
-        text = KEYWORD + ' -filter:retweets -filter:quote ' + screen_names + ' since:' + time1.strftime('%Y-%m-%d_%H:%M:%S_JST') + ' until:' + time2.strftime('%Y-%m-%d_%H:%M:%S_JST')
-        response = search_timeline(text, rep_accounts[-1][1], rep_accounts[-1][2], cursor)
-        response_json = response.json()
-        if response.status_code == 200 and 'errors' not in response_json:
-            try:
-                flag = True
-                flag2 = True
-                instructions = response_json['data']['search']['timeline_response']['timeline']['instructions']
-                for instruction in instructions:
-                    if 'entries' in instruction: entries = instruction['entries']
-                    elif 'entry' in instruction: entries = [instruction['entry']]
-                    else: continue
-                    for entry in entries:
-                        if "promoted" not in entry['entryId'] and "cursor" not in entry['entryId']:
-                            try:
-                                flag2 = False
-                                res = entry['content']['content']['tweetResult']['result']
-                                if 'tweet' in res:
-                                    res = res['tweet']
-                                legacy = res['legacy']
-                                legacy['id_str'] = str(int(res['rest_id']) + 1)
-                                
-                                if TweetIdTime(int(legacy['id_str'])) < time1:
-                                    if "home" in entry['entryId']:
-                                        continue
-                                    else:
-                                        flag = False
-                                        final(out)
-                                        return
-                                legacy['text'] = legacy['full_text']
-                                if legacy['text'] != KEYWORD:
-                                    continue
-                                legacy['source'] = 'undefined'
-                                legacy['index'] = int(bin(int(legacy['id_str']))[2:-22], 2) + 1288834974657
-                                legacy['user'] = res['core']['user_result']['result']['legacy']
-                                out.append(legacy)
-                                continue
-                            except Exception as e:
-                                print(e)
-                        
-                        if "bottom" in entry['entryId']:
-                            flag = False
-                            if flag2:
-                                final(out)
-                            else:
-                                get334_from_sub(entry['content']['value'])
-                            return
-                if flag:
-                    final(out)
-            except Exception as e:
-                traceback.print_exc()
-                final(out)
-        else:
-            print(f'Search 334 Error occurred: {response_json}')
-            final(out)
+    count = 0
+    def final():
+        nonlocal count, out2, end_flag
+        count += 1
+        if count >= If (search_only, 1, 3):
+            out.sort(key=lambda x: x['index'])
+            ids = []
+            for item in out:
+                if item['id_str'] not in ids:
+                    out2.append(item)
+                    ids.append(item['id_str'])
+            print("GET334 COMPLETE")
+            end_flag = False
 
 
-    get_time = datetime.datetime(now.year, now.month, now.day, TIME334[0], TIME334[1], 2)
-    while True:
-        if get_time < datetime.datetime.now():
-            print("GET334 start: ", datetime.datetime.now())
-            driver.execute_script("""
-window.data = "";
-var cookie = document.cookie.replaceAll(" ", "").split(";");
-var token = "";
-cookie.forEach(function (value) {
-    let content = value.split('=');
-    if (content[0] == "ct0") token = content[1];
-})
-let time1 = new Date().setHours(""" + str(TIME334[0]) + """, """ + str(TIME334[1]) + """, 0, 0);
+    def add_arr(res, arr, entry_id):
+        legacy = res['legacy']
+        if TweetIdTime(int(legacy['id_str'])) < time1:
+            if "home" in entry_id:
+                return True
+            else:
+                final()
+                return False
 
-function get_queryid(name, defaultId) {
-    try {
-        let queryids = webpackChunk_twitter_responsive_web;
-        for (let i = 0; i < queryids.length; i++) {
-            for (let key in queryids[i][1]) {
-                try {
-                    if (queryids[i][1][key].length === 1) {
-                        let tmp = {};
-                        queryids[i][1][key](tmp);
-                        if (tmp.exports.operationName === name) return tmp.exports.queryId;
-                    }
-                } catch { }
-            }
-        }
-        return defaultId;
-    } catch {
-        return defaultId;
-    }
-}
+        legacy['text'] = legacy['full_text']
+        if legacy['text'] != KEYWORD: return True
 
-var data = arguments[0];
-data.variables["cursor"] = "";
-data.variables.seenTweetIds = [];
-let queryid = get_queryid("HomeLatestTimeline", "");
-data.queryId = queryid;
-var data2 = arguments[1];
-data2.variables["cursor"] = "";
-data2.variables["rawQuery"] = '""" + KEYWORD + """ -filter:retweets -filter:quote """ + screen_names + """ since:""" + time1.strftime('%Y-%m-%d_%H:%M:%S_JST') + """ until:""" + time2.strftime('%Y-%m-%d_%H:%M:%S_JST') + """'
-let queryid2 = get_queryid("SearchTimeline", "");
-var count = 0;
-get_tweets(data);
-get_tweets2(data2, 0);
-setTimeout(function() { get_tweets2(data2, 1) }, 2000);
+        legacy['source'] = res['source']
+        legacy['index'] = (int(legacy['id_str']) >> 22) + 1288834974657
+        legacy['user'] = res['core']['user_results']['result']['legacy']
+        legacy['user']['id_str'] = legacy['user_id_str']
+        arr.append(legacy)
+        return True
 
-function setheader(xhr) {
-    xhr.setRequestHeader('Authorization', 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA');
-    xhr.setRequestHeader('x-csrf-token', token);
-    xhr.setRequestHeader('x-twitter-active-user', 'yes');
-    xhr.setRequestHeader('x-twitter-auth-type', 'OAuth2Session');
-    xhr.setRequestHeader('x-twitter-client-language', 'ja');
-    xhr.withCredentials = true;
-}
 
-var out = [];
-function get_tweets(d) {
-    try {
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://x.com/i/api/graphql/' + queryid + '/HomeLatestTimeline');
-        setheader(xhr);
-        xhr.setRequestHeader('content-type', 'application/json');
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                console.error("get from timeline");
-                if (xhr.status === 200) {
-                    try {
-                        var flag = true;
-                        let entries = JSON.parse(xhr.responseText).data.home.home_timeline_urt.instructions[0].entries;
-                        for (let i = 0; i < entries.length; i++) {
-                            if (!entries[i].entryId.includes("promoted") && !entries[i].entryId.includes("cursor")) {
-                                try {
-                                    if (entries[i].entryId.includes("home")) var res = entries[i].content.items[0].item.itemContent.tweet_results.result;
-                                    else var res = entries[i].content.itemContent.tweet_results.result;
-                                    if ("tweet" in res) res = res.tweet;
-                                    let legacy = res.legacy;
-                                    if (new Date(legacy.created_at) < time1) {
-                                        if (entries[i].entryId.includes("home")) continue;
-                                        else {
-                                            flag = false;
-                                            final(out);
-                                            break;
-                                        }
-                                    }
-                                    legacy["text"] = legacy.full_text;
-                                    if (legacy.text != '""" + KEYWORD + """') continue;
-                                    legacy["source"] = res.source;
-                                    legacy["index"] = parseInt(BigInt(legacy.id_str).toString(2).slice(0, -22), 2) + 1288834974657;
-                                    legacy["user"] = res.core.user_results.result.legacy;
-                                    legacy.user["id_str"] = legacy.user_id_str;
-                                    out.push(legacy);
-                                    continue;
-                                } catch (e) {
-                                    console.error(e);
-                                }
-                            }
-                            if (entries[i].entryId.includes("bottom")) {
-                                let data3 = Object.assign({}, data);
-                                data3.variables.cursor = entries[i].content.value;
-                                flag = false;
-                                get_tweets3(data3);
-                                break;
-                            }
-                        }
-                        if (flag) final(out);
-                    } catch (e) {
-                        console.error(e);
-                        final(out);
-                    }
-                } else final(out);
-            }
-        }
-        xhr.send(JSON.stringify(d));
-    } catch (e) {
-        console.error(e);
-        final(out);
-    }
-}
+    def get_timeline(cursor = None):
+        nonlocal out
+        print("GET334 get_timeline  search_only:", search_only)
+        try:
+            data = latest_timeline_web(oauth_token, token_secret, cursor)
+            entries = data['data']['home']['home_timeline_urt']['instructions'][0]['entries']
 
-var out2 = [[], []];
-function get_tweets2(d, index) {
-    try {
-        let param = "?" + Object.entries(d).map((e) => {
-            return `${e[0].replaceAll("%22", "")}=${encodeURIComponent(JSON.stringify(e[1]))}`
-        }).join("&")
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'https://x.com/i/api/graphql/' + queryid2 + '/SearchTimeline' + param);
-        setheader(xhr);
-        xhr.setRequestHeader('content-type', 'application/json');
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                console.error("get from search");
-                if (xhr.status === 200) {
-                    try {
-                        var flag = true;
-                        let instructions = JSON.parse(xhr.responseText).data.search_by_raw_query.search_timeline.timeline.instructions;
-                        var flag2 = true;
-                        loop: for (let j = 0; j < instructions.length; j++) {
-                            if ("entries" in instructions[j]) var entries = instructions[j].entries;
-                            else if ("entry" in instructions[j]) var entries = [instructions[j].entry];
-                            else continue;
-                            for (let i = 0; i < entries.length; i++) {
-                                if (!entries[i].entryId.includes("promoted") && !entries[i].entryId.includes("cursor")) {
-                                    try {
-                                        flag2 = false;
-                                        var res = entries[i].content.itemContent.tweet_results.result;
-                                        if ("tweet" in res) res = res.tweet;
-                                        let legacy = res.legacy;
-                                        if (new Date(legacy.created_at) < time1) {
-                                            if (entries[i].entryId.includes("home")) continue;
-                                            else {
-                                                flag = false;
-                                                final(out2[index]);
-                                                break loop;
-                                            }
-                                        }
-                                        legacy["text"] = legacy.full_text;
-                                        if (legacy.text != '""" + KEYWORD + """') continue;
-                                        legacy["source"] = res.source;
-                                        legacy["index"] = parseInt(BigInt(legacy.id_str).toString(2).slice(0, -22), 2) + 1288834974657;
-                                        legacy["user"] = res.core.user_results.result.legacy;
-                                        legacy.user["id_str"] = legacy.user_id_str;
-                                        out2[index].push(legacy);
-                                        continue;
-                                    } catch (e) {
-                                        console.error(e);
-                                    }
-                                }
-                                if (entries[i].entryId.includes("bottom")) {
-                                    let data3 = JSON.parse(JSON.stringify(data2));
-                                    data3.variables.cursor = entries[i].content.value;
-                                    flag = false;
-                                    if (flag2) final(out2[index]);
-                                    else get_tweets2(data3, index);
-                                    break loop;
-                                }
-                            }
-                        }
-                        if (flag) final(out2[index]);
-                    } catch (e) {
-                        console.error(e);
-                        final(out2[index]);
-                    }
-                } else final(out2[index]);
-            }
-        }
-        xhr.send();
-    } catch (e) {
-        console.error(e);
-        final(out2[index]);
-    }
-}
+            for entry in entries:
+                entry_id = entry['entryId']
+                if "bottom" in entry_id:
+                    get_timeline(entry['content']['value'])
+                    return
+                
+                try:
+                    if "promoted" in entry_id or "cursor" in entry_id: continue
+                    if "home" in entry_id:
+                        res = entry['content']['items'][0]['item']['itemContent']['tweet_results']['result']
+                    else:
+                        res = entry['content']['itemContent']['tweet_results']['result']
+                    if "tweet" in res:
+                        res = res['tweet']
 
-function final(out6) {
-    out = out.concat(out6);
-    count++;
-    console.log(count)
-    console.log(out)
-    if (count < 3) return;
-    let out5 = []
-    let ids = [];
-    out.sort((a, b) => a.index - b.index);
-    for (let i = 0; i < out.length; i++) {
-        if (!ids.includes(out[i].id_str)) {
-            out5.push(out[i]);
-            ids.push(out[i].id_str);
-        }
-    }
-    window.data = out5;
-}
-            """, request_body['Timeline'], request_body['SearchTimeline'])
-            threading.Thread(target=get334_from_sub, args=(None,)).start()
-            while True:
-                time.sleep(0.1)
-                res = driver.execute_script("return window.data")
-                if res != "":
-                    print("GET334 conplete: ", datetime.datetime.now())
-                    if res != []:
-                        while get334_from_sub_arr == '':
-                            time.sleep(0.01)
-                        make_ranking(res + get334_from_sub_arr, _driver)
-                    break
-            break
-        time.sleep(0.01)
+                    if not add_arr(res, out, entry_id): return
 
+                except Exception as e:
+                    print(e)
+
+            final()
+
+        except Exception as e:
+            traceback.print_exc()
+            final()
+
+
+    def get_search(cursor = None):
+        nonlocal out
+        print("GET334 get_search  search_only:", search_only)
+        screen_names = f'-from:{main_account[0]} ' + ' '.join([f'-from:{account[0]}' for account in rep_accounts])
+        text = f"{KEYWORD} -filter:retweets -filter:quote {screen_names} since:{time1.strftime('%Y-%m-%d_%H:%M:%S_JST')} until:{time2.strftime('%Y-%m-%d_%H:%M:%S_JST')}"
+        try:
+            flag = True
+            data = search_timeline_web(text, oauth_token, token_secret, cursor)
+            instructions = data['data']['search_by_raw_query']['search_timeline']['timeline']['instructions']
+
+            for instruction in instructions:
+                entries = []
+                if 'entries' in instruction:
+                    entries = instruction['entries']
+                elif 'entry' in instruction:
+                    entries = [instruction['entry']]
+                else:
+                    continue
+
+                for entry in entries:
+                    entry_id = entry['entryId']
+                    if "bottom" in entry_id:
+                        if flag:
+                            final()
+                        else:
+                            get_search(entry['content']['value'])
+                        return
+                    
+                    try:
+                        if "promoted" in entry_id or "cursor" in entry_id :
+                            continue
+
+                        flag = False
+                        res = entry['content']['itemContent']['tweet_results']['result']
+                        if "tweet" in res:
+                            res = res['tweet']
+                        if not add_arr(res, out, entry_id): return
+
+                    except Exception as e:
+                        print(e)
+                    
+            final()
+
+        except Exception as e:
+            traceback.print_exc()
+            final()
+
+
+    get_time = time2 + datetime.timedelta(seconds=1)
+    while datetime.datetime.now() < get_time: time.sleep(0.01)
+    print("GET334 START  search_only:", search_only)
+    if search_only:
+        threading.Thread(target = get_search).start()
+    else:
+        threading.Thread(target = get_timeline).start()
+        threading.Thread(target = get_search).start()
+        time.sleep(2)
+        threading.Thread(target = get_search).start()
+    while end_flag:
+        time.sleep(1)
+    func(out2)
+
+
+def main334(_driver):
+
+    result = []
+    count = 0
+    def func(arr):
+        nonlocal result, count
+        result = result + arr
+        count += 1
+        if count >= 1 + len(rep_accounts):
+            make_ranking(result, _driver)
+
+    threading.Thread(target=get334, args=(main_account[1], main_account[2], False, func,)).start()
+    for rep_account in rep_accounts:
+        threading.Thread(target=get334, args=(rep_account[1], rep_account[2], True, func,)).start()
 
 
 def notice():
     global today_result, prepare_flag
     today = datetime.datetime.now().date()
     notice_time = datetime.datetime.combine(today, datetime.time(TIME334[0], TIME334[1])) - datetime.timedelta(minutes=2)
-    while True:
-        if notice_time < datetime.datetime.now():
-            today_result = {}
-            prepare_flag = True
-            print("NOTICE :")
-            threading.Thread(target=tweet_from_main, args=({'text': '334観測中 (' + today.strftime('%Y/%m/%d') + ')'},)).start()
-            _driver = {}
-            
-            for _ in range(5):
-                try:
-                    options=Options()
-                    #options.add_argument('--headless')
-                    options.add_argument('--no-sandbox')
-                    options.add_argument("--disable-extensions")
-                    options.add_argument("--disable-gpu")
-                    options.add_argument('--disable-dev-shm-usage')
-                    _driver = webdriver.Chrome(options = options)
-                    _driver.set_window_size(589, 1)
-                    _driver.get(HTML_URL)
-                    wait = WebDriverWait(_driver, 20).until(EC.alert_is_present())
-                    Alert(_driver).accept()
-                except Exception as e:
-                    traceback.print_exc()
-                    time.sleep(2)
-                else:
-                    get334(_driver)
-                    break
+    while datetime.datetime.now() < notice_time: time.sleep(5)
+    today_result = {}
+    prepare_flag = True
+    print("NOTICE :")
+    threading.Thread(target=tweet_by_oauth, args=({'text': f"334観測中 ({today.strftime('%Y/%m/%d')})"},)).start()
+    _driver = {}
+    
+    for _ in range(5):
+        try:
+            options=Options()
+            #options.add_argument('--headless')
+            options.add_argument('--no-sandbox')
+            options.add_argument("--disable-extensions")
+            options.add_argument("--disable-gpu")
+            options.add_argument('--disable-dev-shm-usage')
+            _driver = webdriver.Chrome(options = options)
+            _driver.set_window_size(589, 1)
+            _driver.get(HTML_URL)
+            wait = WebDriverWait(_driver, 20).until(EC.alert_is_present())
+            Alert(_driver).accept()
+        except Exception as e:
+            traceback.print_exc()
+            time.sleep(2)
+        else:
+            main334(_driver)
             break
-        time.sleep(5)
 
 
 def main():
@@ -1389,10 +1012,8 @@ def main():
                 print('TEST MODE')
                 start_time = '???'
                 end_time = times[i][0]
-
             print(start_time, end_time)
-
-
+            
             global past_records, today_result, today_joined, records_rank
             today_unsorted = []
             response = request_php('get')
@@ -1420,30 +1041,10 @@ def main():
 
             make_world_rank()
             print('LOADED RANK')
-
-            global driver
-            for _ in range(5):
-                try:
-                    options=Options()
-                    #options.add_argument('--headless')
-                    options.add_argument('--no-sandbox')
-                    options.add_argument("--disable-extensions")
-                    options.add_argument("--disable-gpu")
-                    options.add_argument('--disable-dev-shm-usage')
-                    options.add_argument('--disable-http2')
-                    driver = webdriver.Chrome(options = options)
-                    driver.set_script_timeout(5)
-                    
-                except Exception as e:
-                    traceback.print_exc()
-                    time.sleep(5)
-                else:
-                    break
-
-            prepare_main()
+            
 
             if len(sys.argv) != 1:
-                start_time = datetime.datetime.now().replace(microsecond = 0) + datetime.timedelta(seconds=3)
+                start_time = datetime.datetime.now().replace(microsecond = 0) + datetime.timedelta(seconds=2)
             print('START')
             
             threading.Thread(target = get_mention_from_notion, args=(start_time, end_time,)).start()
