@@ -460,7 +460,7 @@ def get_mention_from_search(since, end):
     def loop(text, index):
         oauth_token, token_secret = search_accounts[index]
         data = search_timeline(text, oauth_token, token_secret)
-        if "errors" in data:
+        if "errors" in data and "data" not in data:
             print(datetime.datetime.now(), f"Search Error occurred at index {index}", data)
             return
         instructions = data["data"]["search"]["timeline_response"]["timeline"]["instructions"]
