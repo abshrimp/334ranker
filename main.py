@@ -155,7 +155,7 @@ def create_follow(id, oauth_token, token_secret):
     return sendAndroid("/1.1/friendships/create.json", payload, oauth_token, token_secret, "POST")
 
 
-def get_mentions(oauth_token, token_secret):
+def get_mentions(oauth_token, token_secret, cursor = None):
     params = {
         "earned": "true",
         "include_ext_is_blue_verified": "true",
@@ -188,6 +188,8 @@ def get_mentions(oauth_token, token_secret):
         "include_viewer_quick_promote_eligibility": "true",
         "include_ext_has_nft_avatar": "true",
     }
+    if cursor != None:
+        params["cursor"] = cursor
     return sendAndroid(
         "/2/notifications/mentions.json", params, oauth_token, token_secret
     )
@@ -420,9 +422,13 @@ def receive(reps):
 def get_mention_from_notion(since, end):
     """通知欄からメンションを取得"""
 
+    cursor = None
+
     def loop():
+        nonlocal cursor
         screen_names = [main_account[0]] + [account[0] for account in rep_accounts]
         data = get_mentions(main_account[1], main_account[2])
+        if "tweets" not in data["globalObjects"]: return
         tweets = data["globalObjects"]["tweets"]
         users = data["globalObjects"]["users"]
         out = []
@@ -433,6 +439,11 @@ def get_mention_from_notion(since, end):
                 tweet["user"] = users[tweet["user_id_str"]]
                 out.append(tweet)
         receive(out)
+        instructions = data["timeline"]["instructions"]
+        for instruction in instructions:
+            if "addEntries" in instruction:
+                cursor = instruction["addEntries"]["entries"][0]["content"]["operation"]["cursor"]["value"]
+                break
 
     while datetime.datetime.now() < since: time.sleep(0.01)
     counter = 0
@@ -471,7 +482,7 @@ def get_mention_from_search(since, end):
                         res = res["tweet"]
                     legacy = res["legacy"]
                     legacy["id_str"] = res["rest_id"]
-                    if start <= TweetIdTime(int(legacy["id_str"])) <= end:
+                    if since <= TweetIdTime(int(legacy["id_str"])) <= end:
                         if not any(element in legacy["full_text"].lower() for element in screen_names): continue
                         legacy["user"] = res["core"]["user_result"]["result"]["legacy"]
                         out.append(legacy)
