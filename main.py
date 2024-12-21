@@ -474,9 +474,9 @@ def get_mention_from_search(since, end):
             else:
                 continue
             for entry in entries:
-                if "promoted" in entry["entryId"] or "cursor" in entry["entryId"]:
-                    continue
+                if "promoted" in entry["entryId"] or "cursor" in entry["entryId"]: continue
                 try:
+                    if "result" not in entry["content"]["content"]["tweetResult"]: continue
                     res = entry["content"]["content"]["tweetResult"]["result"]
                     if "tweet" in res:
                         res = res["tweet"]
