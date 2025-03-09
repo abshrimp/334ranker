@@ -1058,7 +1058,7 @@ def main():
                 start_time = datetime.datetime.now().replace(microsecond = 0) + datetime.timedelta(seconds=2)
             print('START')
             
-            if len(sys.argv) != 1 and sys.args[1] == "recount":
+            if len(sys.argv) != 1 and sys.argv[1] == "recount":
                 print('RECOUNT MODE')
                 notice()
                 
