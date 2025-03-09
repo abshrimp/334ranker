@@ -1,4 +1,4 @@
-name: recount
+name: recount2
 
 on:
   workflow_dispatch:
