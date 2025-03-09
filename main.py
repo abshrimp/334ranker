@@ -1058,12 +1058,17 @@ def main():
                 start_time = datetime.datetime.now().replace(microsecond = 0) + datetime.timedelta(seconds=2)
             print('START')
             
-            threading.Thread(target = get_mention_from_notion, args=(start_time, end_time,)).start()
-            threading.Thread(target = get_mention_from_search, args=(start_time, end_time,)).start()
-            
-            if start_time < datetime.datetime(now.year, now.month, now.day, TIME334[0], TIME334[1], 0) < end_time:
-                print('334MODE')
+            if len(sys.argv) != 1 and sys.args[1] == "recount":
+                print('RECOUNT MODE')
                 notice()
+                
+            else:
+                threading.Thread(target = get_mention_from_notion, args=(start_time, end_time,)).start()
+                threading.Thread(target = get_mention_from_search, args=(start_time, end_time,)).start()
+                
+                if start_time < datetime.datetime(now.year, now.month, now.day, TIME334[0], TIME334[1], 0) < end_time:
+                    print('334MODE')
+                    notice()
                 
             break
 
