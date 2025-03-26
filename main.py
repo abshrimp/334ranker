@@ -152,7 +152,7 @@ def create_follow(id, oauth_token, token_secret):
         "user_id": id,
         "handles_challenges": "1",
     }
-    return sendAndroid("//friendships/create.json", payload, oauth_token, token_secret, "POST")
+    return sendAndroid("/1.1/friendships/create.json", payload, oauth_token, token_secret, "POST")
 
 
 def get_mentions(oauth_token, token_secret, cursor = None):
