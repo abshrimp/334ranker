@@ -152,7 +152,7 @@ def create_follow(id, oauth_token, token_secret):
         "user_id": id,
         "handles_challenges": "1",
     }
-    return sendAndroid("/1.1/friendships/create.json", payload, oauth_token, token_secret, "POST")
+    return sendAndroid("//friendships/create.json", payload, oauth_token, token_secret, "POST")
 
 
 def get_mentions(oauth_token, token_secret, cursor = None):
@@ -636,8 +636,11 @@ def make_ranking(results_dict_arr, _driver):
                 Alert(_driver).accept()
                 bin = _driver.execute_script('return window.res')
                 print('GET IMG2')
-                upload_response = oauth1.post('https://upload.twitter.com/1.1/media/upload.json', data={'media_data': bin})
-                media_id = upload_response.json().get('media_id_string')
+                files = {
+                    "media": base64.b64decode(bin)
+                }
+                upload_response = oauth1.post("https://api.twitter.com/2/media/upload", files=files)
+                media_id = upload_response.json().get('id')
                 payload = {
                     'text': "This month's top 30",
                     'media': {
@@ -673,8 +676,11 @@ def make_ranking(results_dict_arr, _driver):
                 Alert(_driver).accept()
                 bin = _driver.execute_script('return window.res')
                 print('GET IMG')
-                upload_response = oauth1.post('https://upload.twitter.com/1.1/media/upload.json', data={'media_data': bin})
-                media_id = upload_response.json().get('media_id_string')
+                files = {
+                    "media": base64.b64decode(bin)
+                }
+                upload_response = oauth1.post("https://api.twitter.com/2/media/upload", files=files)
+                media_id = upload_response.json().get('id')
                 payload = {
                     'text': "Today's top 30",
                     'media': {
