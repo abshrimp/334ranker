@@ -427,7 +427,7 @@ def get_mention_from_notion(since, end):
     def loop():
         nonlocal cursor
         screen_names = [main_account[0]] + [account[0] for account in rep_accounts]
-        data = get_mentions(main_account[1], main_account[2])
+        data = get_mentions(main_account[1], main_account[2], cursor)
         if "tweets" not in data["globalObjects"]: return
         tweets = data["globalObjects"]["tweets"]
         users = data["globalObjects"]["users"]
