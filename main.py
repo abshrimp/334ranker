@@ -238,7 +238,13 @@ def latest_timeline_web(oauth_token, token_secret, cursor=None):
     }
     return sendAndroid('/graphql/nMyTQqsJiUGBKLGNSQamAA/HomeLatestTimeline', params, oauth_token, token_secret)
 
-
+def get_user_by_id(id, oauth_token, token_secret):
+    params = {
+        'variables': "%7B%22userId%22%3A%22" + id + "%22%7D",
+        'features': "%7B%22hidden_profile_subscriptions_enabled%22%3Atrue%2C%22profile_label_improvements_pcf_label_in_post_enabled%22%3Atrue%2C%22rweb_tipjar_consumption_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22highlights_tweets_tab_ui_enabled%22%3Atrue%2C%22responsive_web_twitter_article_notes_tab_enabled%22%3Atrue%2C%22subscriptions_feature_can_gift_premium%22%3Atrue%2C%22creator_subscriptions_tweet_preview_api_enabled%22%3Atrue%2C%22responsive_web_graphql_skip_user_profile_image_extensions_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%7D"
+    }
+    return sendAndroid('/graphql/WJ7rCtezBVT6nk6VM5R8Bw/UserByRestId', params, oauth_token, token_secret)
+    
 def request_php(url, data=None):
     for attempt in range(5):
         try:
@@ -604,19 +610,14 @@ def make_ranking(results_dict_arr, _driver):
             index += 1
             if index > 30: break
             if value[1] != previous_value: current_rank = index
-            url = "https://api.x.com/graphql/WJ7rCtezBVT6nk6VM5R8Bw/UserByRestId"
-            params = {
-                "variables": f'{{"userId":"{value[0]}"}}',
-                "features": '{"hidden_profile_subscriptions_enabled":true,"profile_label_improvements_pcf_label_in_post_enabled":true,"rweb_tipjar_consumption_enabled":true,"verified_phone_label_enabled":false,"highlights_tweets_tab_ui_enabled":true,"responsive_web_twitter_article_notes_tab_enabled":true,"subscriptions_feature_can_gift_premium":true,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"responsive_web_graphql_timeline_navigation_enabled":true}'
-            }
             counter = Counter(month_source[value[0]])
-            headers = { "authorization": "Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA" }
             try:
-                response = requests.get(url, params=params, headers=headers)
-                legacy = response.json()['data']['user']['result']['legacy']
+                response = get_user(value[0], main_account[1], main_account[2])
+                legacy = response['data']['user']['result']['legacy']
                 name = legacy['name']
                 if name == '': name = '@' + legacy['screen_name']
                 rankdata.append([current_rank, legacy['profile_image_url_https'], legacy['name'], value[1], len(month_source[value[0]]), counter.most_common(1)[0][0]])
+                time.sleep(1)
             except:
                 rankdata.append([current_rank, '', 'unknown', value[1], len(month_source[value[0]]), counter.most_common(1)[0][0]])
             previous_value = value[1]
