@@ -638,10 +638,11 @@ def make_ranking(results_dict_arr, _driver):
                 bin = _driver.execute_script('return window.res')
                 print('GET IMG2')
                 files = {
-                    "media": base64.b64decode(bin)
+                    "media": base64.b64decode(bin),
+                    "media_category": "TWEET_IMAGE"
                 }
                 upload_response = oauth1.post("https://api.twitter.com/2/media/upload", files=files)
-                media_id = upload_response.json().get('id')
+                media_id = upload_response.json()["data"]["id"]
                 payload = {
                     'text': "This month's top 30",
                     'media': {
@@ -678,10 +679,11 @@ def make_ranking(results_dict_arr, _driver):
                 bin = _driver.execute_script('return window.res')
                 print('GET IMG')
                 files = {
-                    "media": base64.b64decode(bin)
+                    "media": base64.b64decode(bin),
+                    "media_category": "TWEET_IMAGE"
                 }
                 upload_response = oauth1.post("https://api.twitter.com/2/media/upload", files=files)
-                media_id = upload_response.json().get('id')
+                media_id = upload_response.json()["data"]["id"]
                 payload = {
                     'text': "Today's top 30",
                     'media': {
