@@ -661,7 +661,6 @@ def make_ranking(results_dict_arr, _driver):
             'text': "Today's winner https://x.com/" + screen_name + "/status/" + id
         }
         print("RETWEET :")
-        tweet_by_oauth(payload)
 
     def make_img(tweets):
         """ランキング画像の生成とアップロード"""
@@ -683,7 +682,12 @@ def make_ranking(results_dict_arr, _driver):
                     "media_category": "TWEET_IMAGE"
                 }
                 upload_response = oauth1.post("https://api.twitter.com/2/media/upload", files=files)
-                media_id = upload_response.json()["data"]["id"]
+                try:
+                    json_data = upload_response.json()
+                    media_id = json_data["data"]["id"]
+                except ValueError:
+                    print("JSON decode error:", upload_response.status_code, upload_response.text)
+                    return
                 payload = {
                     'text': "Today's top 30",
                     'media': {
