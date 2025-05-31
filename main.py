@@ -613,7 +613,7 @@ def make_ranking(results_dict_arr, _driver):
             counter = Counter(month_source[value[0]])
             try:
                 response = get_user(value[0], main_account[1], main_account[2])
-                legacy = response['data']['user']['result']['legacy']
+                legacy = response['data']['user_result']['result']['legacy']
                 name = legacy['name']
                 if name == '': name = '@' + legacy['screen_name']
                 rankdata.append([current_rank, legacy['profile_image_url_https'], legacy['name'], value[1], len(month_source[value[0]]), counter.most_common(1)[0][0]])
