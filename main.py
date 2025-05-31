@@ -622,7 +622,6 @@ def make_ranking(results_dict_arr, _driver):
                 rankdata.append([current_rank, '', 'unknown', value[1], len(month_source[value[0]]), counter.most_common(1)[0][0]])
             previous_value = value[1]
 
-        print(str(rankdata))
         _driver.get(HTML_URL2)
         wait = WebDriverWait(_driver, 20).until(EC.alert_is_present())
         Alert(_driver).accept()
@@ -639,7 +638,8 @@ def make_ranking(results_dict_arr, _driver):
                 bin = _driver.execute_script('return window.res')
                 print('GET IMG2')
                 files = {
-                    "media": base64.b64decode(bin)
+                    "media": base64.b64decode(bin),
+                    "media_category": "TWEET_IMAGE"
                 }
                 upload_response = oauth1.post("https://upload.twitter.com/1.1/media/upload.json", files=files)
                 media_id = upload_response.json()["media_id_string"]
@@ -661,6 +661,7 @@ def make_ranking(results_dict_arr, _driver):
             'text': "Today's winner https://x.com/" + screen_name + "/status/" + id
         }
         print("RETWEET :")
+        tweet_by_oauth(payload)
 
     def make_img(tweets):
         """ランキング画像の生成とアップロード"""
@@ -678,15 +679,11 @@ def make_ranking(results_dict_arr, _driver):
                 bin = _driver.execute_script('return window.res')
                 print('GET IMG')
                 files = {
-                    "media": base64.b64decode(bin)
+                    "media": base64.b64decode(bin),
+                    "media_category": "TWEET_IMAGE"
                 }
                 upload_response = oauth1.post("https://upload.twitter.com/1.1/media/upload.json", files=files)
-                try:
-                    media_id = upload_response.json()["media_id_string"]
-                except ValueError:
-                    print("JSON decode error:", upload_response.status_code, upload_response.text)
-                    make_month_rank()
-                    return
+                media_id = upload_response.json()["media_id_string"]
                 payload = {
                     'text': "Today's top 30",
                     'media': {
@@ -734,8 +731,95 @@ def make_ranking(results_dict_arr, _driver):
 
     #生データを扱いやすい形に変換
 
-    results_for_img = [['https://pbs.twimg.com/profile_images/1810684511942057984/Rb6SuXb8_normal.jpg', 'いーるけん', '0.005', 'Twitter Web App', '1928520281770889711', '@Eel_Ken', '935502914029731841'], ['https://pbs.twimg.com/profile_images/1906904444136312832/3YGUlJWJ_normal.jpg', 'お茶(きょ〜じゅ)', '0.015', 'Twitter for iPhone', '1928520281812774965', '@Kyojyunokimot', '1480898324643577863'], ['https://pbs.twimg.com/profile_images/1893252144075063296/AF5N4BW5_normal.jpg', '@Umibe.', '0.016', 'Twitter for Android', '1928520281816969641', '@umibejin_k', '1797913362661294080'], ['https://pbs.twimg.com/profile_images/1909049048683941889/HhY2WW8r_normal.jpg', 'まこと', '0.016', 'Twitter for iPhone', '1928520281817231840', '@TNyusei223742', '1909048195507974144'], ['https://pbs.twimg.com/profile_images/1270727849700294661/EahcJ0DW_normal.jpg', 'きゃくと', '0.024', 'Twitter Web App', '1928520281850794175', '@kyakt0', '1041337350041681921'], ['https://pbs.twimg.com/profile_images/1907870176357580800/Z1xvawWS_normal.jpg', 'しゅーどん1ごう', '0.026', 'Twitter Web App', '1928520281859273063', '@shuudonn', '971970443455246337'], ['https://pbs.twimg.com/profile_images/1690219713052413952/CBh3Prda_normal.jpg', 'すびあ', '0.028', 'Twitter for iPad', '1928520281867362361', '@Air2_LOVE', '1295280723499216897'], ['https://pbs.twimg.com/profile_images/1907270101302419456/KnkrrujW_normal.jpg', '윤승', '0.039', 'Twitter for iPhone', '1928520281913425966', '@SEUNG_QS', '1440296934'], ['https://pbs.twimg.com/profile_images/1653687014947176448/pHUFvfhM_normal.jpg', 'バラン', '0.042', 'Twitter Web App', '1928520281926128062', '@baran5144347080', '1653686759677624320'], ['https://pbs.twimg.com/profile_images/1877073803047743489/eofSFRit_normal.jpg', 'あじらす', '0.045', 'Twitter for iPhone', '1928520281938608329', '@Ajirasu1127', '1747598951526830080'], ['https://pbs.twimg.com/profile_images/1925794348047728640/bz9byAnN_normal.jpg', '7-17🦊', '0.055', 'Twitter for iPhone', '1928520281980633569', '@0824_no_Seras', '1815746497469935616'], ['https://pbs.twimg.com/profile_images/1862156507489394688/bAYBOi0W_normal.jpg', 'SugerBoy@心で工学', '0.061', 'Twitter Web App', '1928520282005975257', '@Suger_nitech', '1632771849544425472'], ['https://pbs.twimg.com/profile_images/1900893596779507714/G-R2moRH_normal.jpg', '限界まで足掻いた人生', '0.062', 'Twitter for iPhone', '1928520282009903276', '@genkai_uts1', '1733703776928980992'], ['https://pbs.twimg.com/profile_images/1768293753268346880/VNo1G1lz_normal.jpg', '始発快速3821M', '0.065', 'Twitter Web App', '1928520282022486265', '@Rapid_3821M', '1373177377237262340'], ['https://pbs.twimg.com/profile_images/1904858258231508992/ijr6Vy5o_normal.jpg', 'あおたく', '0.068', 'Twitter Web App', '1928520282035179554', '@uxlpp', '1796825765692268544'], ['https://pbs.twimg.com/profile_images/1906946412207841280/otm5TDa__normal.jpg', '愛葉🐧💕', '0.069', 'Twitter for iPhone', '1928520282039325182', '@Loveleaf0622', '1645807110461214723'], ['https://pbs.twimg.com/profile_images/1724683320188186624/SpPyAuwI_normal.png', 'おのたかし（めっぽうきさく）', '0.071', 'Twitter for iPhone', '1928520282047652187', '@onotakashi', '106727219'], ['https://pbs.twimg.com/profile_images/1921590494976684032/p4R43dOJ_normal.jpg', '十六夜', '0.083', 'Twitter for Android', '1928520282098004209', '@hu_1zay01', '1898224587990798336'], ['https://pbs.twimg.com/profile_images/1747538735741419520/U_8ar2hI_normal.jpg', 'えら釘数学ららじばら', '0.085', 'Twitter Web App', '1928520282106638359', '@swimming_year', '1654899695280623616'], ['https://pbs.twimg.com/profile_images/1904755515206623232/JG4jppG-_normal.jpg', 'さんせっとぐろう', '0.094', 'Twitter for iPhone', '1928520282144153912', '@himaja____', '1507517971736166403'], ['https://pbs.twimg.com/profile_images/1327372430302531589/rBwGMftz_normal.jpg', 'し～まる', '0.095', 'Twitter Web App', '1928520282148389030', '@seamaru_pro', '977008069119901696'], ['https://pbs.twimg.com/profile_images/1797637008090890240/lfbZLeA__normal.jpg', 'わどわど', '0.100', 'Twitter for iPhone', '1928520282169552938', '@wado_8', '1729843579135385600'], ['https://pbs.twimg.com/profile_images/1902239567102844928/zHaMJ4yw_normal.jpg', '学歴浪だりんぐ', '0.104', 'Twitter for Android', '1928520282186330374', '@rondal_04', '1836223002838732802'], ['https://pbs.twimg.com/profile_images/1800827861642969088/nAtBkZ3z_normal.jpg', 'たすあいらぁ =TAS= IsLa.', '0.109', 'Twitter for iPhone', '1928520282207113691', '@IQ465', '3167571098'], ['https://pbs.twimg.com/profile_images/1918910840708968448/q5m4U3S5_normal.jpg', 'ぱこっ多浪', '0.112', 'Twitter Web App', '1928520282219884974', '@no_friends_rou', '1910810622398459904'], ['https://pbs.twimg.com/profile_images/1845570939775594496/W1_BZ0mX_normal.jpg', 'ちょこ', '0.131', 'Twitter for iPhone', '1928520282299371811', '@jjeicne', '1664942160993738754'], ['https://pbs.twimg.com/profile_images/1809029614230253571/xspA6laC_normal.jpg', 'エクセキューターれいひ❄', '0.136', 'Twitter for Android', '1928520282320548127', '@reifwia_bwp', '1250649243917770752'], ['https://pbs.twimg.com/profile_images/1909967059326582784/xtAoeRkp_normal.jpg', 'たかはし（23）🎖️', '0.141', 'Twitter Web App', '1928520282341298671', '@tktk1807', '1572242187219501059'], ['https://pbs.twimg.com/profile_images/1805599911121240064/ujF3hV1C_normal.jpg', 'てん', '0.143', 'Twitter for iPhone', '1928520282349727786', '@tenzehn_', '1772992889372766208'], ['https://pbs.twimg.com/profile_images/1893185859765039104/buQUUsmo_normal.jpg', 'う', '0.147', 'Twitter Web App', '1928520282366685376', '@Wny_3', '4113094998'], ['https://pbs.twimg.com/profile_images/1711678969144311808/zhbHQOGn_normal.jpg', 'cl', '0.180', 'Twitter for iPhone', '1928520282505204062', '@clsmm2', '1683300704155467776'], ['https://pbs.twimg.com/profile_images/847720699863093248/IxomgF0X_normal.jpg', 'へいたく', '0.185', 'Twitter for iPhone', '1928520282525888970', '@heitaku_', '623335558'], ['https://pbs.twimg.com/profile_images/1915449238131269638/WqS5FgyA_normal.jpg', '가로쉬세로쉬연구소', '0.195', 'Twitter Web App', '1928520282568069425', '@fundamental_of', '1478510830836920320'], ['https://pbs.twimg.com/profile_images/1770076875630809088/jE_umPRg_normal.jpg', 'いろ', '0.201', 'Twitter for iPhone', '1928520282592907332', '@ir_025', '1759232154435989504'], ['https://pbs.twimg.com/profile_images/1924726119074562049/mbU6aUjK_normal.jpg', 'ねむふる', '0.210', 'Twitter for iPhone', '1928520282630689022', '@unrunnuh', '1666088289089261572'], ['https://pbs.twimg.com/profile_images/1585189734791360512/gAMS5HCt_normal.jpg', 'KtaK', '0.213', 'Twitter Web App', '1928520282643308545', '@KtaK721', '1585189460815204353'], ['https://pbs.twimg.com/profile_images/1923031538498695168/FisWtc_G_normal.jpg', '爆泣きひよこ', '0.215', 'Twitter for iPhone', '1928520282651623446', '@halstakeomu0902', '1908192290151219200'], ['https://pbs.twimg.com/profile_images/1906905062406082560/KVN4MMEA_normal.jpg', 'ハム大のありす', '0.216', 'Twitter for iPhone', '1928520282655932431', '@hamualice', '1773885631917400064'], ['https://pbs.twimg.com/profile_images/1913619152243412992/n75t-9KI_normal.jpg', 'だい', '0.218', 'Twitter Web App', '1928520282664247321', '@Ou42OTmFFGLTPoi', '841948919642902528'], ['https://pbs.twimg.com/profile_images/1919347459291328512/b2BcPY6s_normal.jpg', 'エンジェルジョーク', '0.225', 'Twitter for Android', '1928520282693574824', '@angeljoke', '161871065'], ['https://pbs.twimg.com/profile_images/1924448071427162112/GBMzMjNt_normal.jpg', 'たくてぃー', '0.241', 'Twitter for iPhone', '1928520282760790349', '@takty_1438', '1898622339845419008'], ['https://pbs.twimg.com/profile_images/1824129432023601152/_JtKPyWl_normal.jpg', '明治大学334サークル', '0.242', 'Twitter for iPhone', '1928520282764869760', '@meiji_334', '1824128548745142272'], ['https://pbs.twimg.com/profile_images/1293089491855400961/o__W9b-z_normal.jpg', '農林漁業用揮発油税財源身替農道', '0.257', 'Twitter for iPhone', '1928520282827858429', '@bZYiPrp2sr4oTOQ', '1260404747166605314'], ['https://pbs.twimg.com/profile_images/1905233017574137856/5ceIEy5G_normal.jpg', 'するめ', '0.258', 'Twitter Web App', '1928520282832077162', '@SRM_108', '1904505214021009409'], ['https://pbs.twimg.com/profile_images/1876992348099575808/V3qbAp69_normal.jpg', 'cipher', '0.260', 'Twitter Web App', '1928520282840379598', '@cipher703516247', '1655909210184617987'], ['https://pbs.twimg.com/profile_images/1927785254003339264/IkQtQ2ac_normal.jpg', 'ことねﾁｬ❕', '0.279', 'Twitter for iPhone', '1928520282920079535', '@Hiy95_ri', '1926213193887543296'], ['https://pbs.twimg.com/profile_images/1690013076727234560/1glnK-Kw_normal.jpg', 'あはあさらた', '0.311', 'Twitter Web App', '1928520283054285117', '@1tlY5v2lGE2NNTr', '1600126054194360321'], ['https://pbs.twimg.com/profile_images/1900170704974479360/0VfTCx5z_normal.jpg', '努力不足の女々しいクズ(にしんぱい)', '0.319', 'Twitter Web App', '1928520283087925264', '@kirby_love828', '1516338052423032837'], ['https://pbs.twimg.com/profile_images/1923747583450570753/UJGgYdrM_normal.jpg', 'まる🍙(曇のち曇🌥️)ご依頼ぼしゅ', '0.331', 'Twitter for iPhone', '1928520283138256965', '@Rice__Maru', '1415653640807751680'], ['https://pbs.twimg.com/profile_images/1878890588663345152/gFP7L8jH_normal.jpg', 'とも❄', '0.335', 'Twitter Web App', '1928520283155214656', '@Liyna912', '1223941234630115328'], ['https://pbs.twimg.com/profile_images/1914184570842537984/INOfMdy__normal.jpg', '鏡にーれ', '0.349', 'Twitter for Android', '1928520283213709704', '@Nire_Kagami', '1841712660670513155'], ['https://pbs.twimg.com/profile_images/1928517756468502529/sCjJdhcv_normal.jpg', '小小藍白@MMFC', '0.353', 'Twitter for Android', '1928520283230543980', '@sakuyayorunashi', '966607944262459392'], ['https://pbs.twimg.com/profile_images/1923756643788947456/GuTg_qLg_normal.jpg', '甘食トロピカルファンタジー(ななㄘʓ\u200e〜ドウㄘʓ\u200e〜ｶﾛㄘʓ\u200e〜)', '0.372', 'Twitter for iPhone', '1928520283310182564', '@amsk_amazing', '1858542903896977409'], ['https://pbs.twimg.com/profile_images/1724351248739229696/gzKJfxD8_normal.jpg', '𓂸 → 𓂹 → 𓂺 ࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰ ࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰࣰ', '0.386', 'Twitter for iPhone', '1928520283368923259', '@bot_n_i_k_i', '1516057772991053824'], ['https://pbs.twimg.com/profile_images/1155986875871461377/tZv-ti62_normal.png', 'Raspel(ラスペル)', '0.390', 'Twitter for Android', '1928520283385901089', '@raspel_balma', '154586655'], ['https://pbs.twimg.com/profile_images/1770446033061040128/EAI7GyDq_normal.jpg', '緒山まひろぅ', '0.395', 'Twitter for iPhone', '1928520283406684620', '@mahiro_ronin', '1043840848650072066'], ['https://pbs.twimg.com/profile_images/1881120093146607616/H8dGeDbk_normal.jpg', 'わず', '0.399', 'Twitter for iPhone', '1928520283423650177', '@was_handai', '1860464921240371200'], ['https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png', '競馬すき', '0.406', 'Twitter for iPhone', '1928520283452784854', '@keibasukiiiiiii', '1783074592900452352'], ['https://pbs.twimg.com/profile_images/1899054983661977600/cLzJK4rz_normal.jpg', 'おまどぅー', '0.415', 'Twitter for Android', '1928520283490758911', '@omadouma1001', '1899053275091226624'], ['https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png', 'yamada4649', '0.425', 'Twitter Web App', '1928520283532484728', '@yamada4649ver1', '2713779072'], ['https://pbs.twimg.com/profile_images/1917852226166616064/Gae1YPZQ_normal.jpg', '黄金豆次郎', '0.431', 'Twitter for Android', '1928520283557650705', '@mamemame_labo', '1900135369615826944'], ['https://pbs.twimg.com/profile_images/1919764205198364672/Es6xLR1-_normal.jpg', 'みんみんぜみ', '0.433', 'Twitter for iPhone', '1928520283566010666', '@miinnmiinnzemii', '1919762931753046016'], ['https://pbs.twimg.com/profile_images/1921301710020198400/gpskbYjM_normal.jpg', 'あかにし州', '0.433', 'Twitter for iPhone', '1928520283566256472', '@akanicity', '1921301392842747904'], ['https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png', 'Me', '0.443', 'Twitter for iPhone', '1928520283607965720', '@MemexxX05', '1918659800533176320'], ['https://pbs.twimg.com/profile_images/3514487404/43c39408cdb111ec0532a0a1303e8eab_normal.gif', 'しずくβ', '0.444', 'Twitter Web App', '1928520283612393795', '@siz33', '383311855'], ['https://pbs.twimg.com/profile_images/1739299926553829376/zgzWC1yL_normal.jpg', '〒Ｔク', '0.449', 'Twitter Web App', '1928520283633148144', '@n_TR05', '985763706830077952'], ['https://pbs.twimg.com/profile_images/1923675455414009856/ivv6Al34_normal.jpg', 'かズMAX｜6/1 J1#19 vs横浜FC @埼スタ', '0.460', 'Twitter for iPhone', '1928520283679342793', '@Kazumax_0125', '919556253797326848'], ['https://pbs.twimg.com/profile_images/1879855122454593536/wn63VPm__normal.jpg', 'No|く○', '0.466', 'Twitter for Android', '1928520283704434849', '@4meiatowazuka', '1833019453120094208'], ['https://pbs.twimg.com/profile_images/1883435200027455489/XWQwzjGN_normal.jpg', 'てん', '0.477', 'Twitter for Android', '1928520283750551721', '@li6qr4', '1882783254312628224'], ['https://pbs.twimg.com/profile_images/1926308416839979009/POfDiPzL_normal.jpg', '名前募集バーガー', '0.494', 'Twitter for iPhone', '1928520283821904258', '@st402nd4', '1730641844416245760'], ['https://pbs.twimg.com/profile_images/1915708295840751619/XNKeZ7p4_normal.jpg', '仮浪', '0.495', 'Twitter for iPhone', '1928520283826110501', '@karoh_nin', '1883196143062171648'], ['https://pbs.twimg.com/profile_images/1898789543878500352/sEbjAnUT_normal.jpg', 'きな', '0.545', 'Twitter for iPhone', '1928520284035752347', '@mochikinako00', '1593197876603420673'], ['https://pbs.twimg.com/profile_images/1920386751803068417/bK5ZqPD9_normal.jpg', 'チ。', '0.585', 'Twitter for iPhone', '1928520284203561279', '@1killxx_', '1653106158868234241'], ['https://pbs.twimg.com/profile_images/1801224449913704448/wARvt64B_normal.jpg', '_', '0.601', 'Twitter for iPhone', '1928520284270678430', '@___v4qn', '1212050535655723009'], ['https://pbs.twimg.com/profile_images/1882954696127881216/w92zMZhv_normal.jpg', '生涯収支マイナス ｻﾝ', '0.627', 'Twitter for iPhone', '1928520284379951293', '@rumi_otaku', '1028166407651975178'], ['https://pbs.twimg.com/profile_images/772845398805229570/4xCUQ9oS_normal.jpg', 'KING', '0.634', 'Twitter for iPhone', '1928520284409074002', '@popnneu', '320098147'], ['https://pbs.twimg.com/profile_images/1188789134665474048/-h7so-kD_normal.jpg', 'コドモ', '0.667', 'Twitter for Android', '1928520284547473577', '@Kodomo913', '862000370'], ['https://pbs.twimg.com/profile_images/1539190382910914561/FCcSntgp_normal.jpg', 'ふゆなさん❄️', '0.680', 'Twitter for iPhone', '1928520284602048840', '@Fuyu7a', '1052442615814258689'], ['https://pbs.twimg.com/profile_images/1484540746921553923/0VVi0_-b_normal.jpg', 'す', '0.693', 'Twitter for Android', '1928520284656521402', '@K3qCBWSkHSIrcsl', '1484540452259135490'], ['https://pbs.twimg.com/profile_images/1902231176263487488/3jXB5Ia2_normal.jpg', 'あまりんご', '0.695', 'Twitter for iPhone', '1928520284664930449', '@Ama__1221', '1706278770926338048'], ['https://pbs.twimg.com/profile_images/1918494665449586690/sWi6LClX_normal.jpg', 'とけないぱん', '0.728', 'Twitter for Android', '1928520284803362923', '@Oishisoupan', '1918492942001684480'], ['https://pbs.twimg.com/profile_images/1854899049037778944/jOIZdfx1_normal.jpg', 'ちょーた', '0.739', 'Twitter for iPhone', '1928520284849451040', '@chouta_1221_', '1751247433030656000'], ['https://pbs.twimg.com/profile_images/1912693306083143682/Nlpf86OA_normal.jpg', 'オワタ', '0.739', 'Twitter for iPhone', '1928520284849713654', '@owata083', '1420008689545531394'], ['https://pbs.twimg.com/profile_images/1923842414701096960/B9Nkwlvu_normal.jpg', '旋光性', '0.740', 'Twitter for iPhone', '1928520284853682666', '@jinseiminus', '1899859015863328771'], ['https://pbs.twimg.com/profile_images/1890722569994768384/uJLl-LFU_normal.jpg', 'むらさめ＠フォロー制限なう', '0.765', 'Twitter for iPhone', '1928520284958572821', '@m_pro_1', '1615634251126542336'], ['https://pbs.twimg.com/profile_images/1906628307065688064/gQXCKgVQ_normal.jpg', '三上', '0.785', 'Twitter for iPhone', '1928520285042663831', '@skli_mt', '1829156191827791872'], ['https://pbs.twimg.com/profile_images/1900667189512073217/vJkBBTQf_normal.jpg', 'やなみ', '0.787', 'Twitter for iPhone', '1928520285051039935', '@yana_maimai', '1688676847796760578'], ['https://pbs.twimg.com/profile_images/1922463186789531650/w37PBM1t_normal.jpg', 'むきむき', '0.792', 'Twitter for iPhone', '1928520285072011716', '@mikiwameru_me', '1868102908535050240'], ['https://pbs.twimg.com/profile_images/1843595657866817536/uX0zMbwl_normal.jpg', 'ふらんすあ', '0.802', 'Twitter for iPhone', '1928520285113713069', '@Franzua_97', '1239410681155207170'], ['https://pbs.twimg.com/profile_images/1711263392227524609/NpV9DrcM_normal.jpg', 'ふくろう', '0.822', 'Twitter for iPhone', '1928520285197869309', '@Hukurou029', '3286724640'], ['https://pbs.twimg.com/profile_images/1763427098570764288/QHCVczzZ_normal.jpg', '牛乳好き', '0.830', 'Twitter for iPhone', '1928520285231395286', '@gyu_nyu_su_ki', '1751944953432084480'], ['https://pbs.twimg.com/profile_images/1884752483366703105/MNKKmNUO_normal.jpg', 'ネコピク', '0.840', 'Twitter for iPhone', '1928520285273338266', '@neko_kantai', '972643488666861569'], ['https://pbs.twimg.com/profile_images/1848940637535801345/THZWdC6F_normal.jpg', 'ふうり', '0.844', 'Twitter for iPhone', '1928520285289914409', '@kymv0', '1843528019170000896'], ['https://pbs.twimg.com/profile_images/1670243122230743042/SvkJRGK-_normal.jpg', 'ふっく@美学', '0.889', 'Twitter for iPhone', '1928520285478629391', '@senaruax_inpo', '1354074114454118403'], ['https://pbs.twimg.com/profile_images/1803941386577940481/-PdRnZyL_normal.jpg', 'ごっちー', '0.893', 'Twitter for iPhone', '1928520285495636149', '@JK__dao', '2517605377'], ['https://pbs.twimg.com/profile_images/1928443880611172352/bPGNsrEu_normal.jpg', 'あ', '0.901', 'Twitter for iPhone', '1928520285529190450', '@4srola', '1723958640934322177'], ['https://pbs.twimg.com/profile_images/1906928702858108928/b8M5DuIm_normal.jpg', '揚げ豆腐', '0.927', 'Twitter for iPhone', '1928520285638074542', '@Sk69197207', '1548640627461881861'], ['https://pbs.twimg.com/profile_images/1889946474114580480/_wEL1BuL_normal.jpg', 'らむね．', '0.954', 'Twitter for iPhone', '1928520285751275939', '@Rara_prsk_01', '1875370429583671296']]
+    global records_rank, today_result, today_joined, prepare_flag
+    now = datetime.datetime.now()
+    today_str = now.date().strftime('%Y-%m-%d')
+    time_334 = datetime.datetime.combine(now.date(), datetime.time(TIME334[0], TIME334[1]))
+    joined_users = ['1173558244607852545']
+    results_for_img = []
+    update_records_rank = []
+    update_past_records = []
+    results_dict_arr = sorted(results_dict_arr, key=lambda x: int(x['id_str']))
+    current_rank = 1
+    today_joined = 0
+    previous_value = None
+    for item in results_dict_arr:
+        if item['text'] == KEYWORD and item['user']['id_str'] not in joined_users:
+            joined_users.append(item['user']['id_str'])
+            result_time = (TweetIdTime(int(item['id_str'])) - time_334).total_seconds()
+            if 0 <= result_time < 1:
+                result_str = '{:.3f}'.format(result_time)
+
+                img_src = 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'
+                if item['user']['profile_image_url_https'] != '': img_src = item['user']['profile_image_url_https']
+
+                if item['source'] == 'undefined': item['source'] = tweet_from_id(item['id_str'])
+                match = re.search(r'<a[^>]*>([^<]*)</a>', item['source'])
+                source = match.group(1) if match else item['source']
+
+                id = item['user']['id_str']
+
+                results_for_img.append([
+                    img_src,
+                    item['user']['name'],
+                    result_str,
+                    source,
+                    item['id_str'],
+                    '@' + item['user']['screen_name'],
+                    id
+                ])
+
+                today_joined += 1
+                if result_str != previous_value: current_rank = today_joined
+                previous_value = result_str
+                today_result[id] = [current_rank, result_str]
+                if id not in records_rank:
+                    records_rank[id] = {
+                        'best': result_str,
+                        'best_count': 0,
+                        'max_pt': 0.0,
+                        'count': 0,
+                        'f': 0,
+                        's': 0,
+                        't': 0,
+                        'rankin': 0
+                    }
+                records_rank[id]['count'] += 1
+                if result_time < float(records_rank[id]['best']):
+                    records_rank[id]['best'] = result_str
+                    records_rank[id]['best_count'] = 1
+                elif result_time == float(records_rank[id]['best']):
+                    records_rank[id]['best_count'] += 1
+                match current_rank:
+                    case 1:
+                        records_rank[id]['f'] += 1
+                        threading.Thread(target=retweet, args=(item['id_str'], item['user']['screen_name'],)).start()
+                    case 2: records_rank[id]['s'] += 1
+                    case 3: records_rank[id]['t'] += 1
+                if current_rank <= 30: records_rank[id]['rankin'] += 1
+
+                update_list = list(records_rank[id].values())[:8]
+                update_list.insert(0, id)
+                update_records_rank.append(update_list)
+
+                past_records.append([id, now, result_str, source])
+                update_past_records.append([id, today_str, result_str, source]) #JSONにできるよう文字列に
+
+    print(str(results_for_img))
     threading.Thread(target=make_img, args=(str(results_for_img),)).start()
+    
+    make_world_rank()
+    for update_record in update_records_rank:
+        update_record[3] = records_rank[update_record[0]]['max_pt']
+
+    prepare_flag = False
+
+    response = request_php('add_rank', update_records_rank)
+    print("Response:", response.status_code, response.text)
+    response = request_php('add', update_past_records)
+    print("Response:", response.status_code, response.text)
+
+    prepare_flag2 = False
 
 
 def get334(oauth_token, token_secret, search_only, func):
@@ -881,10 +965,28 @@ def get334(oauth_token, token_secret, search_only, func):
 def main334(_driver):
 
     result = []
-    make_ranking(result, _driver)
+    count = 0
+    def func(arr):
+        nonlocal result, count
+        result = result + arr
+        count += 1
+        if count >= 1 + len(rep_accounts):
+            make_ranking(result, _driver)
+
+    threading.Thread(target=get334, args=(main_account[1], main_account[2], False, func,)).start()
+    for rep_account in rep_accounts:
+        threading.Thread(target=get334, args=(rep_account[1], rep_account[2], True, func,)).start()
 
 
 def notice():
+    global today_result, prepare_flag
+    today = datetime.datetime.now().date()
+    notice_time = datetime.datetime.combine(today, datetime.time(TIME334[0], TIME334[1])) - datetime.timedelta(minutes=2)
+    while datetime.datetime.now() < notice_time: time.sleep(5)
+    today_result = {}
+    prepare_flag = True
+    print("NOTICE :")
+    threading.Thread(target=tweet_by_oauth, args=({'text': f"334観測中 ({today.strftime('%Y/%m/%d')})"},)).start()
     _driver = {}
     
     for _ in range(5):
@@ -909,9 +1011,6 @@ def notice():
 
 
 def main():
-    
-    notice()
-    return
 
     now = datetime.datetime.now()
     base_time = datetime.datetime(now.year, now.month, now.day, TIME334[0], TIME334[1], 0) - datetime.timedelta(minutes=34)
