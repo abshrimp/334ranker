@@ -622,6 +622,7 @@ def make_ranking(results_dict_arr, _driver):
                 rankdata.append([current_rank, '', 'unknown', value[1], len(month_source[value[0]]), counter.most_common(1)[0][0]])
             previous_value = value[1]
 
+        print(str(rankdata))
         _driver.get(HTML_URL2)
         wait = WebDriverWait(_driver, 20).until(EC.alert_is_present())
         Alert(_driver).accept()
@@ -687,6 +688,7 @@ def make_ranking(results_dict_arr, _driver):
                     media_id = json_data["data"]["id"]
                 except ValueError:
                     print("JSON decode error:", upload_response.status_code, upload_response.text)
+                    make_month_rank()
                     return
                 payload = {
                     'text': "Today's top 30",
